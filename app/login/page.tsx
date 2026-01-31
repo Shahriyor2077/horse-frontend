@@ -4,8 +4,7 @@ import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { MessageCircle, ArrowLeft, Loader2 } from 'lucide-react';
-
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+import { startTelegramAuth, verifyCode } from '@/lib/api';
 
 export default function LoginPage() {
     const [loading, setLoading] = useState(false);
@@ -21,21 +20,14 @@ export default function LoginPage() {
         setError('');
 
         try {
-            const res = await fetch(`${API_BASE}/api/auth/telegram/start`, {
-                method: 'POST',
-                credentials: 'include',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ returnUrl: window.location.origin }),
-            });
+            const response = await startTelegramAuth(window.location.origin);
 
-            if (!res.ok) {
-                throw new Error('Login boshlashda xatolik');
+            if (!response.success || !response.data) {
+                throw new Error(response.message || 'Login boshlashda xatolik');
             }
 
-            const data = await res.json();
-
             // Telegram botga yo'naltirish
-            window.open(data.botDeepLink, '_blank');
+            window.open(response.data.botDeepLink, '_blank');
 
             // Code kiritish bosqichiga o'tish
             setStep('verify');
@@ -46,7 +38,7 @@ export default function LoginPage() {
         }
     };
 
-    const verifyCode = async () => {
+    const handleVerifyCode = async () => {
         if (code.length !== 8) {
             setError('Code 8 ta belgidan iborat bo\'lishi kerak');
             return;
@@ -56,15 +48,10 @@ export default function LoginPage() {
         setError('');
 
         try {
-            const res = await fetch(`${API_BASE}/api/auth/verify`, {
-                method: 'POST',
-                credentials: 'include',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ code }),
-            });
+            const response = await verifyCode(code);
 
-            if (!res.ok) {
-                throw new Error('Code noto\'g\'ri yoki muddati o\'tgan');
+            if (!response.success) {
+                throw new Error(response.message || 'Code noto\'g\'ri yoki muddati o\'tgan');
             }
 
             // Muvaffaqiyatli login
@@ -200,7 +187,7 @@ export default function LoginPage() {
                             </div>
 
                             <button
-                                onClick={verifyCode}
+                                onClick={handleVerifyCode}
                                 disabled={loading || code.length !== 8}
                                 className="w-full btn btn-primary btn-lg"
                             >

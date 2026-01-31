@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { getCurrentUser, logout as apiLogout } from '@/lib/api';
+import { getCurrentUser, logout as apiLogout, UserMeResponse, AuthResponse } from '@/lib/api';
 
 interface User {
     id: string;
@@ -11,7 +11,7 @@ interface User {
     isVerified: boolean;
     avatarUrl?: string;
     phone?: string;
-    isAdmin?: boolean; // Flag to check if user has admin roles
+    isAdmin: boolean;
 }
 
 interface AuthContextType {
@@ -31,8 +31,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const fetchUser = async () => {
         try {
             setIsLoading(true);
-            const userData = await getCurrentUser();
-            setUser(userData as User);
+            const response = await getCurrentUser();
+            
+            // Check if response indicates user is not authenticated
+            if (!response.success || !response.data) {
+                setUser(null);
+                return;
+            }
+
+            setUser({
+                id: response.data.id,
+                displayName: response.data.displayName,
+                telegramUsername: response.data.username,
+                username: response.data.username,
+                isVerified: response.data.isVerified,
+                avatarUrl: response.data.avatarUrl,
+                phone: response.data.phone,
+                isAdmin: response.data.isAdmin,
+            });
         } catch (error) {
             // Not authenticated or error - that's ok
             setUser(null);

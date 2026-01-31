@@ -27,8 +27,11 @@ export default async function ListingDetailPage({ params }: { params: { slug: st
     let similarListings = [];
 
     try {
-        listing = await getListing(id);
-        similarListings = await getSimilarListings(id);
+        listing = await getListing(id).catch(() => null);
+        if (!listing) {
+            notFound();
+        }
+        similarListings = await getSimilarListings(id).catch(() => []);
     } catch (error) {
         notFound();
     }

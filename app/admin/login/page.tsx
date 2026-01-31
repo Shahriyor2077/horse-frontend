@@ -2,132 +2,162 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Shield, AlertCircle } from 'lucide-react';
+import Link from 'next/link';
+import { Lock, Loader2, Eye, EyeOff } from 'lucide-react';
+import { adminLogin } from '@/lib/api';
 
 export default function AdminLoginPage() {
-    const router = useRouter();
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
+    const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
-    const [isLoading, setIsLoading] = useState(false);
+    const router = useRouter();
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
+        setLoading(true);
         setError('');
-        setIsLoading(true);
 
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/auth/admin/login`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                credentials: 'include',
-                body: JSON.stringify({ username, password }),
-            });
-
-            if (!response.ok) {
-                const error = await response.json().catch(() => ({}));
-                throw new Error(error.message || 'Login failed');
+            if (!username || !password) {
+                throw new Error('Username va parol talab qilinadi');
             }
 
-            // Success - redirect to admin dashboard
+            const response = await adminLogin(username, password);
+
+            if (!response.success) {
+                throw new Error(response.message || 'Login muvaffaqiyatsiz');
+            }
+
+            // Muvaffaqiyatli login
             router.push('/admin/dashboard');
-            router.refresh();
         } catch (err: any) {
-            setError(err.message || 'Login qilishda xatolik yuz berdi');
+            setError(err.message || 'Xatolik yuz berdi');
         } finally {
-            setIsLoading(false);
+            setLoading(false);
         }
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center px-4">
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 py-12 px-4">
             <div className="max-w-md w-full">
-                {/* Logo/Header */}
+                {/* Logo */}
                 <div className="text-center mb-8">
-                    <div className="w-20 h-20 bg-gradient-to-br from-primary-500 to-primary-700 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-2xl">
-                        <Shield className="w-10 h-10 text-white" />
-                    </div>
-                    <h1 className="text-3xl font-bold text-white mb-2">Admin Panel</h1>
-                    <p className="text-slate-400">Otbozor platformasiga xush kelibsiz</p>
+                    <Link href="/" className="inline-block">
+                        <h1 className="text-3xl font-bold text-white">
+                            Otbozor
+                        </h1>
+                        <p className="text-sm text-slate-400 mt-1">Admin Panel</p>
+                    </Link>
                 </div>
 
-                {/* Login Form */}
-                <div className="bg-white rounded-2xl shadow-2xl p-8">
-                    <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Card */}
+                <div className="bg-slate-800 rounded-2xl shadow-2xl border border-slate-700 overflow-hidden">
+                    <div className="p-8">
+                        <div className="text-center mb-8">
+                            <div className="w-16 h-16 bg-amber-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <Lock className="w-8 h-8 text-amber-500" />
+                            </div>
+                            <h2 className="text-2xl font-bold text-white mb-2">
+                                Admin Kirish
+                            </h2>
+                            <p className="text-slate-400">
+                                Faqat admin foydalanuvchilar uchun
+                            </p>
+                        </div>
+
                         {error && (
-                            <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3">
-                                <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-                                <div>
-                                    <p className="text-sm font-medium text-red-800">Xatolik</p>
-                                    <p className="text-sm text-red-700 mt-1">{error}</p>
-                                </div>
+                            <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-lg">
+                                <p className="text-sm text-red-400">{error}</p>
                             </div>
                         )}
 
-                        <div>
-                            <label htmlFor="username" className="block text-sm font-medium text-slate-700 mb-2">
-                                Username
-                            </label>
-                            <input
-                                id="username"
-                                type="text"
-                                value={username}
-                                onChange={(e) => setUsername(e.target.value)}
-                                className="input"
-                                placeholder="superadmin"
-                                required
-                                autoFocus
-                            />
+                        <form onSubmit={handleLogin} className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium text-slate-300 mb-2">
+                                    Username
+                                </label>
+                                <input
+                                    type="text"
+                                    value={username}
+                                    onChange={(e) => {
+                                        setUsername(e.target.value);
+                                        setError('');
+                                    }}
+                                    placeholder="admin"
+                                    className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder:text-slate-500 focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
+                                    disabled={loading}
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-slate-300 mb-2">
+                                    Parol
+                                </label>
+                                <div className="relative">
+                                    <input
+                                        type={showPassword ? 'text' : 'password'}
+                                        value={password}
+                                        onChange={(e) => {
+                                            setPassword(e.target.value);
+                                            setError('');
+                                        }}
+                                        placeholder="••••••••"
+                                        className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder:text-slate-500 focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
+                                        disabled={loading}
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-300 transition-colors"
+                                    >
+                                        {showPassword ? (
+                                            <EyeOff className="w-5 h-5" />
+                                        ) : (
+                                            <Eye className="w-5 h-5" />
+                                        )}
+                                    </button>
+                                </div>
+                            </div>
+
+                            <button
+                                type="submit"
+                                disabled={loading}
+                                className="w-full mt-6 px-4 py-3 bg-amber-500 hover:bg-amber-600 disabled:bg-slate-600 text-white font-semibold rounded-lg transition-colors flex items-center justify-center gap-2"
+                            >
+                                {loading ? (
+                                    <>
+                                        <Loader2 className="w-5 h-5 animate-spin" />
+                                        Yuklanmoqda...
+                                    </>
+                                ) : (
+                                    <>
+                                        <Lock className="w-5 h-5" />
+                                        Kirish
+                                    </>
+                                )}
+                            </button>
+                        </form>
+
+                        <div className="mt-6 pt-6 border-t border-slate-700">
+                            <p className="text-xs text-slate-500 text-center">
+                                Ushbu sahifa faqat admin foydalanuvchilar uchun mo'ljallangan.
+                                <br />
+                                Ruxsatsiz kirish urinishlari qayd etiladi.
+                            </p>
                         </div>
-
-                        <div>
-                            <label htmlFor="password" className="block text-sm font-medium text-slate-700 mb-2">
-                                Parol
-                            </label>
-                            <input
-                                id="password"
-                                type="password"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                className="input"
-                                placeholder="••••••••"
-                                required
-                            />
-                        </div>
-
-                        <button
-                            type="submit"
-                            disabled={isLoading}
-                            className="w-full btn btn-primary btn-lg justify-center disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            {isLoading ? (
-                                <>
-                                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                    Yuklanmoqda...
-                                </>
-                            ) : (
-                                'Kirish'
-                            )}
-                        </button>
-                    </form>
-
-                    <div className="mt-6 pt-6 border-t border-slate-200">
-                        <p className="text-sm text-slate-500 text-center">
-                            Default: <code className="bg-slate-100 px-2 py-1 rounded text-xs">superadmin / admin123</code>
-                        </p>
-                        <p className="text-xs text-slate-400 text-center mt-2">
-                            Production'da parolni o'zgartiring!
-                        </p>
                     </div>
                 </div>
 
-                {/* Back to Home */}
-                <div className="text-center mt-6">
-                    <a href="/" className="text-slate-400 hover:text-white transition-colors text-sm">
-                        ← Bosh sahifaga qaytish
-                    </a>
+                {/* Footer */}
+                <div className="mt-6 text-center">
+                    <Link
+                        href="/"
+                        className="text-sm text-slate-400 hover:text-slate-300 transition-colors"
+                    >
+                        Bosh sahifaga qaytish
+                    </Link>
                 </div>
             </div>
         </div>

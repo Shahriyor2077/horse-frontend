@@ -8,9 +8,7 @@ import { useAuth } from '@/components/providers/AuthProvider';
 
 const navigation = [
     { name: 'Bozor', href: '/bozor' },
-    { name: 'Blog', href: '/blog' },
     { name: "Ko'pkari", href: '/kopkari' },
-    { name: 'Mahsulotlar', href: '/mahsulotlar' },
     { name: 'Aloqa', href: '/aloqa' },
 ];
 

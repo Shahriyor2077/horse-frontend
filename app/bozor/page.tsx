@@ -14,7 +14,9 @@ export default async function BozorPage({
 }: {
     searchParams: ListingsFilter;
 }) {
-    const { data: listings, pagination } = await getListings(searchParams);
+    const result = await getListings(searchParams).catch(() => ({ data: [], pagination: { page: 1, limit: 20, total: 0, totalPages: 0 } }));
+    const listings = result.data || [];
+    const pagination = result.pagination || { page: 1, limit: 20, total: 0, totalPages: 0 };
 
     return (
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">

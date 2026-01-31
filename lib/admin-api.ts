@@ -1,26 +1,31 @@
-import { apiFetch } from './api';
+import { apiFetch, AuthResponse } from './api';
 
 // Admin Dashboard Stats
-export async function getAdminStats() {
+export async function getAdminStats(): Promise<AuthResponse<{
+    pendingListings: number;
+    approvedListings: number;
+    totalUsers: number;
+    todayViews: number;
+}>> {
     return apiFetch('/api/admin/dashboard/stats');
 }
 
 // Pending Listings
-export async function getPendingListings(page = 1, limit = 20) {
+export async function getPendingListings(page = 1, limit = 20): Promise<AuthResponse<any>> {
     return apiFetch('/api/admin/listings/pending', {
         params: { page, limit },
     });
 }
 
 // Approve Listing
-export async function approveListing(listingId: string) {
+export async function approveListing(listingId: string): Promise<AuthResponse<any>> {
     return apiFetch(`/api/admin/listings/${listingId}/approve`, {
         method: 'POST',
     });
 }
 
 // Reject Listing
-export async function rejectListing(listingId: string, reason: string) {
+export async function rejectListing(listingId: string, reason: string): Promise<AuthResponse<any>> {
     return apiFetch(`/api/admin/listings/${listingId}/reject`, {
         method: 'POST',
         body: JSON.stringify({ reason }),
@@ -28,28 +33,28 @@ export async function rejectListing(listingId: string, reason: string) {
 }
 
 // Get Users
-export async function getUsers(page = 1, limit = 20, status?: string) {
+export async function getUsers(page = 1, limit = 20, status?: string): Promise<AuthResponse<any>> {
     return apiFetch('/api/admin/users', {
         params: { page, limit, status },
     });
 }
 
 // Ban User
-export async function banUser(userId: string) {
+export async function banUser(userId: string): Promise<AuthResponse<any>> {
     return apiFetch(`/api/admin/users/${userId}/ban`, {
         method: 'POST',
     });
 }
 
 // Unban User
-export async function unbanUser(userId: string) {
+export async function unbanUser(userId: string): Promise<AuthResponse<any>> {
     return apiFetch(`/api/admin/users/${userId}/unban`, {
         method: 'POST',
     });
 }
 
 // Audit Logs
-export async function getAuditLogs(page = 1, limit = 50) {
+export async function getAuditLogs(page = 1, limit = 50): Promise<AuthResponse<any>> {
     return apiFetch('/api/admin/audit-logs', {
         params: { page, limit },
     });

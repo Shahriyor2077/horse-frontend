@@ -14,8 +14,12 @@ export default function AdminDashboardPage() {
         async function loadStats() {
             try {
                 setIsLoading(true);
-                const data = await getAdminStats();
-                setStats(data);
+                const response = await getAdminStats();
+                if (response.success && response.data) {
+                    setStats(response.data);
+                } else {
+                    throw new Error(response.message || 'Ma\'lumotlarni yuklashda xatolik');
+                }
             } catch (err: any) {
                 setError(err.message || 'Ma\'lumotlarni yuklashda xatolik');
             } finally {

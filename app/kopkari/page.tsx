@@ -9,7 +9,7 @@ export const metadata = {
 };
 
 export default async function KopkariPage() {
-    const events = await getUpcomingEvents(50);
+    const events = await getUpcomingEvents(50).catch(() => []);
 
     return (
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
