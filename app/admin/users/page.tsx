@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { AdminLayout } from '@/components/layout/AdminLayout';
-import { Users, Ban, CheckCircle, Search, Shield } from 'lucide-react';
+import { Users, Ban, CheckCircle, Search, Shield, Loader2 } from 'lucide-react';
 
 interface User {
     id: string;
@@ -111,28 +111,30 @@ export default function AdminUsersPage() {
 
     return (
         <AdminLayout>
-            <div className="mb-8">
-                <h1 className="text-2xl font-bold text-slate-900">Foydalanuvchilar</h1>
-                <p className="text-slate-500">Platformadagi barcha foydalanuvchilarni boshqaring</p>
+            <div className="mb-6 flex justify-between items-center">
+                <div>
+                    <h1 className="text-2xl font-bold text-slate-900">Foydalanuvchilar</h1>
+                    <p className="text-slate-500 text-sm">Platformadagi barcha foydalanuvchilarni boshqaring va moderatsiya qiling</p>
+                </div>
             </div>
 
             {/* Search and Filters */}
-            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
-                <div className="flex gap-4">
-                    <div className="flex-1 relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 mb-6">
+                <div className="flex flex-wrap gap-4">
+                    <div className="flex-1 min-w-[300px] relative">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                         <input
                             type="text"
-                            placeholder="Foydalanuvchi qidirish..."
+                            placeholder="Ism yoki telegram username orqali qidirish..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                            className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none text-sm transition-all"
                         />
                     </div>
                     <select
                         value={statusFilter}
                         onChange={(e) => setStatusFilter(e.target.value)}
-                        className="px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                        className="px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none text-sm transition-all min-w-[160px]"
                     >
                         <option value="">Barcha statuslar</option>
                         <option value="ACTIVE">Faol</option>
@@ -142,134 +144,126 @@ export default function AdminUsersPage() {
             </div>
 
             {/* Users Table */}
-            {loading ? (
-                <div className="text-center py-12">
-                    <div className="w-12 h-12 border-4 border-primary-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
-                </div>
-            ) : filteredUsers.length > 0 ? (
-                <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-                    <table className="w-full">
-                        <thead className="bg-slate-50 border-b border-slate-200">
-                            <tr>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">
-                                    Foydalanuvchi
-                                </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">
-                                    Telegram
-                                </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">
-                                    Status
-                                </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">
-                                    E'lonlar
-                                </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">
-                                    Ro'yxatdan o'tgan
-                                </th>
-                                <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase">
-                                    Harakatlar
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-200">
-                            {filteredUsers.map((user) => (
-                                <tr key={user.id} className="hover:bg-slate-50">
-                                    <td className="px-6 py-4">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
-                                                <span className="text-primary-700 font-semibold">
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                {loading ? (
+                    <div className="flex items-center justify-center py-20">
+                        <Loader2 className="w-8 h-8 animate-spin text-primary-600" />
+                    </div>
+                ) : filteredUsers.length > 0 ? (
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left border-collapse">
+                            <thead>
+                                <tr className="bg-slate-50 border-b border-slate-200">
+                                    <th className="px-6 py-4 text-xs font-semibold text-slate-600 uppercase tracking-wider">Foydalanuvchi</th>
+                                    <th className="px-6 py-4 text-xs font-semibold text-slate-600 uppercase tracking-wider">Aloqa</th>
+                                    <th className="px-6 py-4 text-xs font-semibold text-slate-600 uppercase tracking-wider">Status</th>
+                                    <th className="px-6 py-4 text-xs font-semibold text-slate-600 uppercase tracking-wider">E'lonlar</th>
+                                    <th className="px-6 py-4 text-xs font-semibold text-slate-600 uppercase tracking-wider">Sana</th>
+                                    <th className="px-6 py-4 text-xs font-semibold text-slate-600 uppercase tracking-wider text-right">Amallar</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-100">
+                                {filteredUsers.map((user) => (
+                                    <tr key={user.id} className="hover:bg-slate-50 transition-colors">
+                                        <td className="px-6 py-4">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-9 h-9 bg-primary-100 rounded-full flex items-center justify-center text-primary-700 font-bold text-xs">
                                                     {user.displayName.charAt(0).toUpperCase()}
-                                                </span>
-                                            </div>
-                                            <div>
-                                                <div className="flex items-center gap-2">
-                                                    <span className="font-medium text-slate-900">{user.displayName}</span>
-                                                    {user.isAdmin && (
-                                                        <Shield className="w-4 h-4 text-amber-500" title="Admin" />
-                                                    )}
-                                                    {user.isVerified && (
-                                                        <CheckCircle className="w-4 h-4 text-green-500" title="Tasdiqlangan" />
-                                                    )}
+                                                </div>
+                                                <div className="flex flex-col">
+                                                    <div className="flex items-center gap-1.5">
+                                                        <span className="text-sm font-semibold text-slate-900">{user.displayName}</span>
+                                                        {user.isAdmin && (
+                                                            <span title="Admin"><Shield className="w-3.5 h-3.5 text-amber-500" /></span>
+                                                        )}
+                                                        {user.isVerified && (
+                                                            <span title="Tasdiqlangan"><CheckCircle className="w-3.5 h-3.5 text-green-500" /></span>
+                                                        )}
+                                                    </div>
+                                                    <span className="text-[10px] text-slate-400 font-mono">{user.id.split('-')[0]}</span>
                                                 </div>
                                             </div>
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-4 text-slate-600">
-                                        {user.telegramUsername ? `@${user.telegramUsername}` : '-'}
-                                    </td>
-                                    <td className="px-6 py-4">
-                                        {getStatusBadge(user.status)}
-                                    </td>
-                                    <td className="px-6 py-4 text-slate-600">
-                                        {user._count.listings}
-                                    </td>
-                                    <td className="px-6 py-4 text-sm text-slate-600">
-                                        {new Date(user.createdAt).toLocaleDateString('uz-UZ')}
-                                    </td>
-                                    <td className="px-6 py-4">
-                                        <div className="flex items-center justify-end gap-2">
-                                            {!user.isAdmin && (
-                                                user.status === 'ACTIVE' ? (
-                                                    <button
-                                                        onClick={() => handleBan(user.id)}
-                                                        className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                                                        title="Bloklash"
-                                                    >
-                                                        <Ban className="w-4 h-4" />
-                                                    </button>
-                                                ) : (
-                                                    <button
-                                                        onClick={() => handleUnban(user.id)}
-                                                        className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
-                                                        title="Faollashtirish"
-                                                    >
-                                                        <CheckCircle className="w-4 h-4" />
-                                                    </button>
-                                                )
-                                            )}
-                                        </div>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-
-                    {/* Pagination */}
-                    {totalPages > 1 && (
-                        <div className="px-6 py-4 border-t border-slate-200 flex items-center justify-between">
-                            <button
-                                onClick={() => setPage(p => Math.max(1, p - 1))}
-                                disabled={page === 1}
-                                className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                                Oldingi
-                            </button>
-                            <span className="text-sm text-slate-600">
-                                Sahifa {page} / {totalPages}
-                            </span>
-                            <button
-                                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                                disabled={page === totalPages}
-                                className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                                Keyingi
-                            </button>
-                        </div>
-                    )}
-                </div>
-            ) : (
-                <div className="text-center py-20 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-300">
-                    <div className="w-16 h-16 mx-auto bg-white rounded-full flex items-center justify-center mb-4 shadow-sm">
-                        <Users className="w-8 h-8 text-slate-400" />
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <div className="flex flex-col gap-0.5">
+                                                <span className="text-sm text-slate-600">
+                                                    {user.telegramUsername ? `@${user.telegramUsername}` : '-'}
+                                                </span>
+                                                {user.phone && (
+                                                    <span className="text-xs text-slate-400">{user.phone}</span>
+                                                )}
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            {getStatusBadge(user.status)}
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <span className="text-sm font-medium text-slate-900">{user._count.listings}</span>
+                                        </td>
+                                        <td className="px-6 py-4 text-sm text-slate-600">
+                                            {new Date(user.createdAt).toLocaleDateString()}
+                                        </td>
+                                        <td className="px-6 py-4 text-right">
+                                            <div className="flex items-center justify-end gap-2">
+                                                {!user.isAdmin && (
+                                                    user.status === 'ACTIVE' ? (
+                                                        <button
+                                                            onClick={() => handleBan(user.id)}
+                                                            className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                                                            title="Bloklash"
+                                                        >
+                                                            <Ban className="w-4 h-4" />
+                                                        </button>
+                                                    ) : (
+                                                        <button
+                                                            onClick={() => handleUnban(user.id)}
+                                                            className="p-1.5 text-slate-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-all"
+                                                            title="Faollashtirish"
+                                                        >
+                                                            <CheckCircle className="w-4 h-4" />
+                                                        </button>
+                                                    )
+                                                )}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
                     </div>
-                    <h3 className="text-lg font-medium text-slate-900 mb-2">
-                        Foydalanuvchilar topilmadi
-                    </h3>
-                    <p className="text-slate-500">
-                        Qidiruv yoki filtr parametrlarini o'zgartiring
-                    </p>
-                </div>
-            )}
+                ) : (
+                    <div className="p-20 text-center">
+                        <div className="w-16 h-16 mx-auto bg-slate-50 rounded-full flex items-center justify-center mb-4 text-slate-300">
+                            <Users className="w-8 h-8" />
+                        </div>
+                        <h3 className="text-lg font-semibold text-slate-900 mb-1">Foydalanuvchilar topilmadi</h3>
+                        <p className="text-sm text-slate-500">Qidiruv yoki filtr parametrlarini o'zgartirib ko'ring</p>
+                    </div>
+                )}
+
+                {/* Pagination */}
+                {!loading && totalPages > 1 && (
+                    <div className="px-6 py-4 border-t border-slate-100 flex items-center justify-between bg-slate-50/50">
+                        <button
+                            onClick={() => setPage(p => Math.max(1, p - 1))}
+                            disabled={page === 1}
+                            className="btn btn-secondary btn-sm disabled:opacity-50"
+                        >
+                            Oldingi
+                        </button>
+                        <span className="text-xs font-medium text-slate-500">
+                            Sahifa {page} / {totalPages}
+                        </span>
+                        <button
+                            onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                            disabled={page === totalPages}
+                            className="btn btn-secondary btn-sm disabled:opacity-50"
+                        >
+                            Keyingi
+                        </button>
+                    </div>
+                )}
+            </div>
         </AdminLayout>
     );
 }

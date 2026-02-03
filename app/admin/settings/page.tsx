@@ -164,10 +164,14 @@ export default function AdminSettingsPage() {
                             <button
                                 type="submit"
                                 disabled={isLoading}
-                                className="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                                className="btn btn-primary sm:min-w-[200px]"
                             >
-                                {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
-                                Parolni yangilash
+                                {isLoading ? (
+                                    <Loader2 className="w-4 h-4 animate-spin text-white" />
+                                ) : (
+                                    <Shield className="w-4 h-4 text-white" />
+                                )}
+                                <span className="text-white">Parolni yangilash</span>
                             </button>
                         </div>
                     </div>
