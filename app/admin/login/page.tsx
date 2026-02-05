@@ -30,6 +30,12 @@ export default function AdminLoginPage() {
                 throw new Error(response.message || 'Login muvaffaqiyatsiz');
             }
 
+            // Save tokens to localStorage
+            if (response.data?.tokens) {
+                localStorage.setItem('accessToken', response.data.tokens.accessToken);
+                localStorage.setItem('refreshToken', response.data.tokens.refreshToken);
+            }
+
             // Muvaffaqiyatli login
             router.push('/admin/dashboard');
         } catch (err: any) {

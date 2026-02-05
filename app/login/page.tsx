@@ -54,6 +54,12 @@ function LoginContent() {
                 throw new Error(response.message || 'Code noto\'g\'ri yoki muddati o\'tgan');
             }
 
+            // Save tokens to localStorage
+            if (response.data?.tokens) {
+                localStorage.setItem('accessToken', response.data.tokens.accessToken);
+                localStorage.setItem('refreshToken', response.data.tokens.refreshToken);
+            }
+
             // Muvaffaqiyatli login
             window.location.href = returnUrl;
         } catch (err: any) {

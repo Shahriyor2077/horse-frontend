@@ -25,11 +25,15 @@ export async function apiFetch<T>(
         }
     }
 
+    // Get token from localStorage for Authorization header
+    const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+
     const response = await fetch(url, {
         ...init,
-        credentials: 'include',
+        credentials: 'include', // Still send cookies
         headers: {
             'Content-Type': 'application/json',
+            ...(token ? { Authorization: `Bearer ${token}` } : {}), // Add Bearer token if available
             ...init.headers,
         },
     });
@@ -37,6 +41,11 @@ export async function apiFetch<T>(
     if (!response.ok) {
         // 401 Unauthorized - user not logged in, return empty response
         if (response.status === 401) {
+            // Clear token on 401
+            if (typeof window !== 'undefined') {
+                localStorage.removeItem('accessToken');
+                localStorage.removeItem('refreshToken');
+            }
             return { success: false, message: 'Unauthorized' } as T;
         }
 
@@ -368,5 +377,10 @@ export async function getCurrentUser(): Promise<AuthResponse<UserMeResponse>> {
 }
 
 export async function logout(): Promise<AuthResponse<null>> {
+    // Clear localStorage tokens
+    if (typeof window !== 'undefined') {
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+    }
     return apiFetch('/api/auth/logout', { method: 'POST' });
 }
