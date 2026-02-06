@@ -2,46 +2,24 @@
 
 import { useAuth } from '@/components/providers/AuthProvider';
 import { useRouter } from 'next/navigation';
-import { User, LogOut, FileText, Heart } from 'lucide-react';
+import { LogOut, FileText, Heart } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect } from 'react';
+import { RequireAuth } from '@/components/auth/RequireAuth';
 
-export default function ProfilPage() {
-    const { user, isLoading, logout } = useAuth();
+function ProfilPageContent() {
+    const { user, logout } = useAuth();
     const router = useRouter();
 
+    // Redirect admin users to dashboard
     useEffect(() => {
-        console.log('👤 ProfilPage - Auth State:', { user: !!user, isAdmin: user?.isAdmin, isLoading });
-
-        // If user is admin, redirect to admin dashboard
-        if (!isLoading && user && user.isAdmin) {
+        if (user && user.isAdmin) {
             console.log('👑 Admin user detected, redirecting to admin dashboard...');
             router.push('/admin/dashboard');
-            return;
         }
+    }, [user, router]);
 
-        if (!isLoading && !user) {
-            console.log('❌ No user, redirecting to login...');
-            router.push('/login?returnUrl=/profil');
-        }
-    }, [user, isLoading, router]);
-
-    if (isLoading) {
-        console.log('⏳ ProfilPage - Loading...');
-        return (
-            <div className="min-h-screen flex items-center justify-center">
-                <div className="text-center">
-                    <div className="w-16 h-16 border-4 border-primary-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                    <p className="text-slate-600 dark:text-slate-400">Yuklanmoqda...</p>
-                </div>
-            </div>
-        );
-    }
-
-    if (!user) {
-        console.log('❌ ProfilPage - No user, will redirect...');
-        return null; // Will redirect via useEffect
-    }
+    if (!user) return null;
 
     console.log('✅ ProfilPage - Rendering with user:', user.displayName);
 
@@ -150,5 +128,13 @@ export default function ProfilPage() {
                 </div>
             </div>
         </div>
+    );
+}
+
+export default function ProfilPage() {
+    return (
+        <RequireAuth redirectTo="/profil">
+            <ProfilPageContent />
+        </RequireAuth>
     );
 }

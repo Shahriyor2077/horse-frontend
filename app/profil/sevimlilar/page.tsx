@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/components/providers/AuthProvider';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Heart, MapPin, Eye } from 'lucide-react';
+import { Heart, MapPin } from 'lucide-react';
+import { RequireAuth } from '@/components/auth/RequireAuth';
 
 interface Listing {
     id: string;
@@ -19,21 +19,16 @@ interface Listing {
     media: Array<{ url: string; thumbUrl?: string }>;
 }
 
-export default function FavoritesPage() {
-    const { user, isLoading } = useAuth();
-    const router = useRouter();
+function FavoritesPageContent() {
+    const { user } = useAuth();
     const [favorites, setFavorites] = useState<Listing[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        if (!isLoading && !user) {
-            router.push('/login');
-            return;
-        }
         if (user) {
             fetchFavorites();
         }
-    }, [user, isLoading]);
+    }, [user]);
 
     const fetchFavorites = async () => {
         try {
@@ -65,7 +60,7 @@ export default function FavoritesPage() {
         }
     };
 
-    if (isLoading || loading) {
+    if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center">
                 <div className="w-16 h-16 border-4 border-primary-600 border-t-transparent rounded-full animate-spin"></div>
@@ -153,5 +148,14 @@ export default function FavoritesPage() {
                 )}
             </div>
         </div>
+    );
+}
+
+
+export default function FavoritesPage() {
+    return (
+        <RequireAuth redirectTo="/profil/sevimlilar">
+            <FavoritesPageContent />
+        </RequireAuth>
     );
 }

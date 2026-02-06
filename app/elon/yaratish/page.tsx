@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { FileUpload } from '@/components/ui/FileUpload';
 import { getRegions, getRegionsWithDistricts, getBreeds, createListingDraft, attachMediaToListing, submitListingForReview, Region, Breed, District } from '@/lib/api';
+import { RequireAuth } from '@/components/auth/RequireAuth';
 
 const steps = [
     { id: 1, title: 'Asosiy ma\'lumotlar' },
@@ -17,9 +18,9 @@ const steps = [
     { id: 5, title: 'Ko\'rib chiqish' },
 ];
 
-export default function CreateListingPage() {
+function CreateListingPageContent() {
     const router = useRouter();
-    const { user, isLoading } = useAuth();
+    const { user } = useAuth();
     const [currentStep, setCurrentStep] = useState(1);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState<string>('');
@@ -57,22 +58,19 @@ export default function CreateListingPage() {
     }, []);
 
     useEffect(() => {
-        if (!isLoading && !user) {
-            router.push('/login');
-        }
-    }, [user, isLoading, router]);
+        const loadData = async () => {
+            if (!user) return;
 
-    useEffect(() => {
-        async function loadData() {
             const [regionsData, breedsData] = await Promise.all([
                 getRegionsWithDistricts(),
                 getBreeds(),
             ]);
             setRegions(regionsData);
             setBreeds(breedsData);
-        }
+        };
+
         loadData();
-    }, []);
+    }, [user]);
 
     // Update districts when region changes
     useEffect(() => {
@@ -507,5 +505,14 @@ export default function CreateListingPage() {
                 </div>
             </div>
         </div>
+    );
+}
+
+
+export default function CreateListingPage() {
+    return (
+        <RequireAuth redirectTo="/elon/yaratish">
+            <CreateListingPageContent />
+        </RequireAuth>
     );
 }

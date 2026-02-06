@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/components/providers/AuthProvider';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Plus, Edit, Eye, Trash2, Clock, CheckCircle, XCircle } from 'lucide-react';
+import { Plus, Edit, Eye } from 'lucide-react';
+import { RequireAuth } from '@/components/auth/RequireAuth';
 
 interface Listing {
     id: string;
@@ -19,21 +19,16 @@ interface Listing {
     media: Array<{ url: string; thumbUrl?: string }>;
 }
 
-export default function MyListingsPage() {
-    const { user, isLoading } = useAuth();
-    const router = useRouter();
+function MyListingsPageContent() {
+    const { user } = useAuth();
     const [listings, setListings] = useState<Listing[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        if (!isLoading && !user) {
-            router.push('/login');
-            return;
-        }
         if (user) {
             fetchListings();
         }
-    }, [user, isLoading]);
+    }, [user]);
 
     const fetchListings = async () => {
         try {
@@ -72,7 +67,7 @@ export default function MyListingsPage() {
         );
     };
 
-    if (isLoading || loading) {
+    if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center">
                 <div className="w-16 h-16 border-4 border-primary-600 border-t-transparent rounded-full animate-spin"></div>
@@ -168,5 +163,13 @@ export default function MyListingsPage() {
                 )}
             </div>
         </div>
+    );
+}
+
+export default function MyListingsPage() {
+    return (
+        <RequireAuth redirectTo="/profil/elonlarim">
+            <MyListingsPageContent />
+        </RequireAuth>
     );
 }
