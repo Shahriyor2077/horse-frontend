@@ -11,7 +11,7 @@ export default function ProfilPage() {
     const router = useRouter();
 
     useEffect(() => {
-        console.log('👤 ProfilPage - Auth State:', { user, isLoading });
+        console.log('👤 ProfilPage - Auth State:', { user: !!user, isLoading });
 
         if (!isLoading && !user) {
             console.log('❌ No user, redirecting to login...');
@@ -20,6 +20,7 @@ export default function ProfilPage() {
     }, [user, isLoading, router]);
 
     if (isLoading) {
+        console.log('⏳ ProfilPage - Loading...');
         return (
             <div className="min-h-screen flex items-center justify-center">
                 <div className="text-center">
@@ -31,8 +32,11 @@ export default function ProfilPage() {
     }
 
     if (!user) {
+        console.log('❌ ProfilPage - No user, will redirect...');
         return null; // Will redirect via useEffect
     }
+
+    console.log('✅ ProfilPage - Rendering with user:', user.displayName);
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-900 py-12">

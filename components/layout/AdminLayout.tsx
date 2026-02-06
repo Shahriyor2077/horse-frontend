@@ -69,14 +69,18 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
     const router = useRouter();
 
     useEffect(() => {
+        console.log('🔐 AdminLayout - Auth State:', { user: !!user, isAdmin: user?.isAdmin, isLoading });
+
         // Check if user is authenticated and is admin
         if (!isLoading && (!user || !user.isAdmin)) {
+            console.log('❌ Not admin, redirecting to admin login...');
             router.push('/admin/login');
         }
     }, [user, isLoading, router]);
 
     // Show loading state
     if (isLoading) {
+        console.log('⏳ AdminLayout - Loading...');
         return (
             <div className="min-h-screen flex items-center justify-center bg-slate-100">
                 <div className="text-center">
@@ -89,8 +93,11 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
 
     // Show nothing if not authenticated (will redirect)
     if (!user || !user.isAdmin) {
+        console.log('❌ AdminLayout - No admin user, will redirect...');
         return null;
     }
+
+    console.log('✅ AdminLayout - Rendering for admin:', user.displayName);
 
     return (
         <div className="min-h-screen bg-slate-100">

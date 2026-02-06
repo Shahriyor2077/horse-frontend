@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { getCurrentUser, logout as apiLogout, UserMeResponse, AuthResponse } from '@/lib/api';
 
 interface User {
@@ -28,7 +28,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
-    const fetchUser = async () => {
+    const fetchUser = useCallback(async () => {
         try {
             setIsLoading(true);
 
@@ -86,11 +86,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         } finally {
             setIsLoading(false);
         }
-    };
+    }, []);
 
     useEffect(() => {
         fetchUser();
-    }, []);
+
+        // Listen for storage changes (when user logs in in another tab)
+        const handleStorageChange = () => {
+            console.log('🔄 Storage changed, refetching user...');
+            fetchUser();
+        };
+
+        window.addEventListener('storage', handleStorageChange);
+        return () => window.removeEventListener('storage', handleStorageChange);
+    }, [fetchUser]);
 
     const logout = async () => {
         try {
