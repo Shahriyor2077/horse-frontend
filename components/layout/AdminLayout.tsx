@@ -1,10 +1,11 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { LayoutDashboard, List, Users, FileText, Settings, LogOut } from 'lucide-react';
+import { usePathname, useRouter } from 'next/navigation';
+import { LayoutDashboard, List, Users, FileText, Settings, LogOut, Loader2 } from 'lucide-react';
 import { logout } from '@/lib/api';
-import { useRouter } from 'next/navigation';
+import { useAuth } from '@/components/providers/AuthProvider';
+import { useEffect } from 'react';
 
 const sidebarItems = [
     { name: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard },
@@ -64,6 +65,33 @@ export function AdminSidebar() {
 }
 
 export function AdminLayout({ children }: { children: React.ReactNode }) {
+    const { user, isLoading } = useAuth();
+    const router = useRouter();
+
+    useEffect(() => {
+        // Check if user is authenticated and is admin
+        if (!isLoading && (!user || !user.isAdmin)) {
+            router.push('/admin/login');
+        }
+    }, [user, isLoading, router]);
+
+    // Show loading state
+    if (isLoading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-slate-100">
+                <div className="text-center">
+                    <Loader2 className="w-12 h-12 animate-spin text-primary-600 mx-auto mb-4" />
+                    <p className="text-slate-600">Yuklanmoqda...</p>
+                </div>
+            </div>
+        );
+    }
+
+    // Show nothing if not authenticated (will redirect)
+    if (!user || !user.isAdmin) {
+        return null;
+    }
+
     return (
         <div className="min-h-screen bg-slate-100">
             <AdminSidebar />

@@ -36,8 +36,8 @@ export default function AdminLoginPage() {
                 localStorage.setItem('refreshToken', response.data.tokens.refreshToken);
             }
 
-            // Muvaffaqiyatli login
-            router.push('/admin/dashboard');
+            // Muvaffaqiyatli login - force reload to refresh AuthProvider
+            window.location.href = '/admin/dashboard';
         } catch (err: any) {
             setError(err.message || 'Xatolik yuz berdi');
         } finally {

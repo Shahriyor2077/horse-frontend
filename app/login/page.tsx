@@ -60,7 +60,7 @@ function LoginContent() {
                 localStorage.setItem('refreshToken', response.data.tokens.refreshToken);
             }
 
-            // Muvaffaqiyatli login
+            // Muvaffaqiyatli login - force reload to refresh AuthProvider
             window.location.href = returnUrl;
         } catch (err: any) {
             setError(err.message || 'Tasdiqlashda xatolik');

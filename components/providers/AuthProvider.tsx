@@ -33,7 +33,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             setIsLoading(true);
 
             // Check if we have a token before making the request
-            const hasToken = typeof window !== 'undefined' && localStorage.getItem('accessToken');
+            const hasToken = typeof window !== 'undefined' &&
+                (localStorage.getItem('accessToken') || document.cookie.includes('accessToken'));
+
             if (!hasToken) {
                 setUser(null);
                 setIsLoading(false);
@@ -44,6 +46,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
             // Check if response indicates user is not authenticated
             if (!response.success || !response.data) {
+                // Clear invalid tokens
+                if (typeof window !== 'undefined') {
+                    localStorage.removeItem('accessToken');
+                    localStorage.removeItem('refreshToken');
+                }
                 setUser(null);
                 return;
             }
@@ -59,7 +66,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 isAdmin: response.data.isAdmin,
             });
         } catch (error) {
-            // Not authenticated or error - that's ok
+            // Not authenticated or error - clear tokens
+            if (typeof window !== 'undefined') {
+                localStorage.removeItem('accessToken');
+                localStorage.removeItem('refreshToken');
+            }
             setUser(null);
         } finally {
             setIsLoading(false);

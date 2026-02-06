@@ -28,6 +28,12 @@ export async function apiFetch<T>(
     // Get token from localStorage for Authorization header
     const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
 
+    console.log('🌐 API Request:', {
+        endpoint,
+        hasToken: !!token,
+        tokenPreview: token ? `${token.substring(0, 20)}...` : 'none',
+    });
+
     const response = await fetch(url, {
         ...init,
         credentials: 'include', // Still send cookies
@@ -38,11 +44,18 @@ export async function apiFetch<T>(
         },
     });
 
+    console.log('📡 API Response:', {
+        endpoint,
+        status: response.status,
+        ok: response.ok,
+    });
+
     if (!response.ok) {
         // 401 Unauthorized - user not logged in, return empty response
         if (response.status === 401) {
             // Clear token on 401
             if (typeof window !== 'undefined') {
+                console.log('🔒 401 Unauthorized - clearing tokens');
                 localStorage.removeItem('accessToken');
                 localStorage.removeItem('refreshToken');
             }
