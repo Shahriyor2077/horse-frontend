@@ -46,11 +46,16 @@ export async function apiFetch<T>(
                 localStorage.removeItem('accessToken');
                 localStorage.removeItem('refreshToken');
             }
+            // Don't log 401 errors to console - they're expected when not logged in
             return { success: false, message: 'Unauthorized' } as T;
         }
 
         const error = await response.json().catch(() => ({}));
-        throw new Error(error.message || `HTTP ${response.status}`);
+        const errorMessage = error.message || `HTTP ${response.status}`;
+
+        // Only log non-401 errors
+        console.error(`API Error [${response.status}]:`, errorMessage);
+        throw new Error(errorMessage);
     }
 
     return response.json();

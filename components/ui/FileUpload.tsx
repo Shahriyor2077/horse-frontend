@@ -19,14 +19,18 @@ export function FileUpload({
     onFilesChange,
     initialFiles = []
 }: FileUploadProps) {
-    const [files, setFiles] = useState<{ url: string; type: 'IMAGE' | 'VIDEO'; sortOrder: number; file?: File }[]>(() => {
-        // Filter out any blob URLs from initialFiles on mount
-        const validInitialFiles = initialFiles.filter(f => !f.url.startsWith('blob:'));
-        return validInitialFiles;
-    });
+    const [files, setFiles] = useState<{ url: string; type: 'IMAGE' | 'VIDEO'; sortOrder: number; file?: File }[]>([]);
     const [isUploading, setIsUploading] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
     const blobUrlsRef = useRef<Set<string>>(new Set());
+
+    // Initialize with valid files only (no blob URLs)
+    useEffect(() => {
+        const validInitialFiles = initialFiles.filter(f => !f.url.startsWith('blob:'));
+        if (validInitialFiles.length > 0) {
+            setFiles(validInitialFiles);
+        }
+    }, []);
 
     // Cleanup all blob URLs on unmount
     useEffect(() => {
@@ -107,8 +111,7 @@ export function FileUpload({
                                 className="w-full h-full object-cover"
                                 aria-label={`Yuklangan video ${index + 1}`}
                                 onError={(e) => {
-                                    console.warn('Video load error:', file.url);
-                                    e.currentTarget.style.display = 'none';
+                                    console.error('Video load error:', file.url);
                                 }}
                             />
                         ) : (
@@ -117,8 +120,7 @@ export function FileUpload({
                                 alt={`Yuklangan rasm ${index + 1}`}
                                 className="w-full h-full object-cover"
                                 onError={(e) => {
-                                    console.warn('Image load error:', file.url);
-                                    e.currentTarget.style.display = 'none';
+                                    console.error('Image load error:', file.url);
                                 }}
                             />
                         )}

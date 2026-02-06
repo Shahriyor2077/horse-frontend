@@ -31,8 +31,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const fetchUser = async () => {
         try {
             setIsLoading(true);
+
+            // Check if we have a token before making the request
+            const hasToken = typeof window !== 'undefined' && localStorage.getItem('accessToken');
+            if (!hasToken) {
+                setUser(null);
+                setIsLoading(false);
+                return;
+            }
+
             const response = await getCurrentUser();
-            
+
             // Check if response indicates user is not authenticated
             if (!response.success || !response.data) {
                 setUser(null);

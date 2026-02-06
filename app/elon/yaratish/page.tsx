@@ -49,9 +49,10 @@ export default function CreateListingPage() {
 
     // Clean up any blob URLs on mount (in case of page refresh)
     useEffect(() => {
+        // Clear media on mount to avoid blob URL errors after page refresh
         setFormData(prev => ({
             ...prev,
-            media: prev.media.filter(m => !m.url.startsWith('blob:'))
+            media: []
         }));
     }, []);
 
