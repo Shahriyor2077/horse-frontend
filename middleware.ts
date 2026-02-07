@@ -21,17 +21,9 @@ export function middleware(request: NextRequest) {
         }
     }
 
-    // Check if accessing protected user routes (profil, elon yaratish)
-    if (pathname.startsWith('/profil') || pathname.includes('/elon')) {
-        const accessToken = request.cookies.get('accessToken');
-
-        if (!accessToken) {
-            // Not authenticated - redirect to user login with return URL
-            const loginUrl = new URL('/login', request.url);
-            loginUrl.searchParams.set('returnUrl', pathname);
-            return NextResponse.redirect(loginUrl);
-        }
-    }
+    // User routes (/profil, /elon) - NO middleware check
+    // AuthProvider handles client-side authentication with localStorage
+    // This allows cross-domain token storage to work properly
 
     return NextResponse.next();
 }
@@ -39,8 +31,6 @@ export function middleware(request: NextRequest) {
 export const config = {
     matcher: [
         '/admin/:path*',
-        '/profil/:path*',
-        '/elon/yaratish',
-        '/elon/:path*/tahrirlash',
+        // Removed user routes - they use client-side auth
     ],
 };
