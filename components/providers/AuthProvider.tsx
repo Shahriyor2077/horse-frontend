@@ -32,30 +32,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         try {
             setIsLoading(true);
 
-            // Check if we have a token before making the request
             const hasToken = typeof window !== 'undefined' &&
                 (localStorage.getItem('accessToken') || document.cookie.includes('accessToken'));
 
-            console.log('👤 AuthProvider fetchUser:', {
-                hasToken,
-                accessToken: typeof window !== 'undefined' ? localStorage.getItem('accessToken')?.substring(0, 20) + '...' : 'N/A',
-            });
-
             if (!hasToken) {
-                console.log('❌ No token found, user not authenticated');
                 setUser(null);
                 setIsLoading(false);
                 return;
             }
 
-            console.log('📞 Calling getCurrentUser API...');
             const response = await getCurrentUser();
-            console.log('📡 getCurrentUser response:', response);
 
-            // Check if response indicates user is not authenticated
             if (!response.success || !response.data) {
-                console.log('❌ getCurrentUser failed:', response);
-                // Clear invalid tokens
                 if (typeof window !== 'undefined') {
                     localStorage.removeItem('accessToken');
                     localStorage.removeItem('refreshToken');
@@ -64,7 +52,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 return;
             }
 
-            console.log('✅ User authenticated:', response.data);
             setUser({
                 id: response.data.id,
                 displayName: response.data.displayName,
@@ -76,7 +63,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 isAdmin: response.data.isAdmin,
             });
         } catch (error) {
-            console.error('❌ AuthProvider error:', error);
             // Not authenticated or error - clear tokens
             if (typeof window !== 'undefined') {
                 localStorage.removeItem('accessToken');
@@ -91,10 +77,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     useEffect(() => {
         fetchUser();
 
-        // Listen for storage changes (when user logs in in another tab)
-        const handleStorageChange = () => {
-            console.log('🔄 Storage changed, refetching user...');
-            fetchUser();
+        // Listen for storage changes (only from other tabs)
+        const handleStorageChange = (e: StorageEvent) => {
+            // Only refetch if accessToken specifically changed
+            if (e.key === 'accessToken' || e.key === null) {
+                fetchUser();
+            }
         };
 
         window.addEventListener('storage', handleStorageChange);

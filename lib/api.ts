@@ -28,27 +28,15 @@ export async function apiFetch<T>(
     // Get token from localStorage for Authorization header
     const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
 
-    console.log('🌐 API Request:', {
-        endpoint,
-        hasToken: !!token,
-        tokenPreview: token ? `${token.substring(0, 20)}...` : 'none',
-    });
-
     const response = await fetch(url, {
         ...init,
-        cache: init.cache ?? 'no-store', // Disable Next.js caching by default
-        credentials: 'include', // Still send cookies
+        cache: init.cache ?? 'no-store',
+        credentials: 'include',
         headers: {
             'Content-Type': 'application/json',
-            ...(token ? { Authorization: `Bearer ${token}` } : {}), // Add Bearer token if available
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
             ...init.headers,
         },
-    });
-
-    console.log('📡 API Response:', {
-        endpoint,
-        status: response.status,
-        ok: response.ok,
     });
 
     if (!response.ok) {
