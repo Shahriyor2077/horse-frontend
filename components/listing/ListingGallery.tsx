@@ -35,11 +35,15 @@ export function ListingGallery({ media, title }: ListingGalleryProps) {
             <div className="relative aspect-[16/10] bg-black rounded-2xl overflow-hidden group max-h-[500px]">
                 {activeMedia.type === 'VIDEO' ? (
                     <video
-                        src={activeMedia.url}
+                        key={activeMedia.url}
                         controls
+                        playsInline
+                        preload="metadata"
                         className="w-full h-full object-contain"
                         poster={activeMedia.thumbUrl}
-                    />
+                    >
+                        <source src={activeMedia.url} type="video/mp4" />
+                    </video>
                 ) : (
                     <img
                         src={activeMedia.url}
