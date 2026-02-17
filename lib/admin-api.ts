@@ -118,3 +118,31 @@ export async function publishAdminEvent(id: string): Promise<AuthResponse<any>> 
 export async function deleteAdminEvent(id: string): Promise<AuthResponse<any>> {
     return apiFetch(`/api/admin/events/${id}`, { method: 'DELETE' });
 }
+
+// Finance Settings
+export async function getFinanceSettings(): Promise<AuthResponse<{ productListingPrice: number }>> {
+    return apiFetch('/api/admin/finance/settings');
+}
+
+export async function updateProductPrice(productListingPrice: number): Promise<AuthResponse<{ productListingPrice: number }>> {
+    return apiFetch('/api/admin/finance/settings', {
+        method: 'PUT',
+        body: JSON.stringify({ productListingPrice }),
+    });
+}
+
+export async function getAdminPayments(options?: {
+    page?: number;
+    limit?: number;
+    status?: string;
+    type?: string;
+}): Promise<AuthResponse<any>> {
+    return apiFetch('/api/admin/finance/payments', {
+        params: {
+            page: options?.page,
+            limit: options?.limit,
+            status: options?.status,
+            type: options?.type,
+        } as any,
+    });
+}

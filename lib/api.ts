@@ -473,3 +473,25 @@ export async function getPaymentStatus(paymentId: string): Promise<{
     if (response.success && response.data) return response.data;
     throw new Error(response.message || 'Payment not found');
 }
+
+export async function createProductPaymentInvoice(
+    productId: string,
+): Promise<{ paymentId: string; amount: number; clickUrl: string }> {
+    const response = await apiFetch<AuthResponse<{ paymentId: string; amount: number; clickUrl: string }>>(
+        '/api/payments/create-product-invoice',
+        { method: 'POST', body: JSON.stringify({ productId }) },
+    );
+    if (response.success && response.data) return response.data;
+    throw new Error(response.message || 'Failed to create invoice');
+}
+
+export async function getProductPaymentStatus(paymentId: string): Promise<{
+    id: string;
+    status: 'PENDING' | 'COMPLETED' | 'FAILED' | 'CANCELLED';
+    amount: number;
+    product: { id: string; title: string; slug: string; isPaid: boolean };
+}> {
+    const response = await apiFetch<AuthResponse<any>>(`/api/payments/product-status/${paymentId}`);
+    if (response.success && response.data) return response.data;
+    throw new Error(response.message || 'Payment not found');
+}

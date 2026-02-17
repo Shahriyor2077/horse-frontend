@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { LayoutDashboard, List, Users, FileText, Settings, LogOut, Loader2, Package, Trophy, Menu, X } from 'lucide-react';
+import { LayoutDashboard, List, Users, FileText, Settings, LogOut, Loader2, Package, Trophy, Menu, X, DollarSign } from 'lucide-react';
 import { logout } from '@/lib/api';
 import { useAuth } from '@/components/providers/AuthProvider';
 import { useEffect, useState } from 'react';
@@ -14,6 +14,7 @@ const sidebarItems = [
     { name: 'Foydalanuvchilar', href: '/admin/users', icon: Users },
     { name: "Ko'pkari", href: '/admin/kopkari', icon: Trophy },
     { name: 'Blog', href: '/admin/blog', icon: FileText },
+    { name: 'Moliya', href: '/admin/moliya', icon: DollarSign },
     { name: 'Sozlamalar', href: '/admin/settings', icon: Settings },
 ];
 

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/providers/AuthProvider';
 import { RequireAuth } from '@/components/auth/RequireAuth';
-import { Loader2, Package, CheckCircle } from 'lucide-react';
+import { Loader2, Package } from 'lucide-react';
 import { CustomSelect } from '@/components/ui/CustomSelect';
 
 interface Category {
@@ -18,7 +18,7 @@ function CreateProductForm() {
 
     const [categories, setCategories] = useState<Category[]>([]);
     const [loading, setLoading] = useState(false);
-    const [success, setSuccess] = useState(false);
+
     const [error, setError] = useState('');
 
     const [form, setForm] = useState({
@@ -83,30 +83,13 @@ function CreateProductForm() {
                 throw new Error(data.message || 'Xatolik yuz berdi');
             }
 
-            setSuccess(true);
-            setTimeout(() => router.push('/mahsulotlar'), 2000);
+            router.push(`/mahsulot/${data.id}/tolov`);
         } catch (err: any) {
             setError(err.message || 'Xatolik yuz berdi');
         } finally {
             setLoading(false);
         }
     };
-
-    if (success) {
-        return (
-            <div className="min-h-[60vh] flex items-center justify-center">
-                <div className="text-center">
-                    <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <CheckCircle className="w-8 h-8 text-green-600 dark:text-green-400" />
-                    </div>
-                    <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-2">Mahsulot yuborildi!</h2>
-                    <p className="text-slate-500 dark:text-slate-400">
-                        Mahsulotingiz moderatsiyadan o'tgach nashr etiladi.
-                    </p>
-                </div>
-            </div>
-        );
-    }
 
     return (
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-2xl">
