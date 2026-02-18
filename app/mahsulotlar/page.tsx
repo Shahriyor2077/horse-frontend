@@ -280,7 +280,7 @@ export default function ProductsPage() {
 
                 {/* Mobile filter drawer */}
                 {isFilterOpen && (
-                    <div className="fixed inset-0 z-50 lg:hidden">
+                    <div className="fixed inset-x-0 top-16 bottom-0 z-50 lg:hidden">
                         <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setIsFilterOpen(false)} />
                         <div className="absolute right-0 top-0 bottom-0 w-72 max-w-[85vw] bg-white dark:bg-slate-900 shadow-2xl flex flex-col">
                             <div className="flex items-center justify-between px-5 py-4 border-b border-slate-200 dark:border-slate-700">
