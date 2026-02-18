@@ -139,16 +139,6 @@ export function Header() {
                     </div>
                 ) : (
                     <div className="space-y-3">
-                        <div className="flex items-center justify-between px-4 py-3">
-                            <span className="text-sm text-slate-500 dark:text-slate-400">Mavzu</span>
-                            <button
-                                onClick={toggleTheme}
-                                className="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300"
-                            >
-                                {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-                            </button>
-                        </div>
-
                         {/* Dark/Light mode toggle — hozircha yopiq
                         <div className="flex items-center justify-between px-4 py-3">
                             <span className="text-sm text-slate-500 dark:text-slate-400">Mavzu</span>
