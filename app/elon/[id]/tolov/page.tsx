@@ -43,7 +43,6 @@ const PACKAGES: Package[] = [
         popular: true,
         features: [
             "7 kun TOP'da joylashtirish",
-            '3 marta ko\'tarish',
         ],
     },
     {
@@ -56,8 +55,6 @@ const PACKAGES: Package[] = [
         borderColor: 'border-amber-200 dark:border-amber-800 hover:border-amber-300 dark:hover:border-amber-700',
         features: [
             "30 kun TOP'da joylashtirish",
-            '9 marta ko\'tarish',
-            "7 kun VIP e'lonlarda",
         ],
     },
 ];

@@ -1,9 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { Mail, Phone, MapPin, Send, MessageSquare, CheckCircle } from 'lucide-react';
+import { Mail, Phone, MapPin, Send, MessageSquare, CheckCircle, ArrowLeft } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 export default function ContactPage() {
+    const router = useRouter();
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -37,6 +39,10 @@ export default function ContactPage() {
 
     return (
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+            <button onClick={() => router.back()} className="inline-flex items-center gap-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 mb-6 transition-colors">
+                <ArrowLeft className="w-4 h-4" />
+                Orqaga
+            </button>
             {/* Header */}
             <div className="mb-8 sm:mb-12 text-center">
                 <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-slate-900 dark:text-slate-100 mb-3 sm:mb-4">

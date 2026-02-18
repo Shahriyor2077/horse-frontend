@@ -62,7 +62,7 @@ export default async function ListingDetailPage({ params }: { params: { slug: st
                     <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 sm:p-6 shadow-sm border border-slate-200 dark:border-slate-700">
 
                         {/* Title + Save */}
-                        <div className="flex items-start justify-between gap-3 mb-3">
+                        <div className="flex items-start justify-between gap-3 mb-1">
                             <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-slate-900 dark:text-slate-100 leading-tight">
                                 {listing.title}
                             </h1>
@@ -87,7 +87,7 @@ export default async function ListingDetailPage({ params }: { params: { slug: st
                         <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-sm text-slate-500 dark:text-slate-400 mb-6">
                             <span className="flex items-center gap-1">
                                 <MapPin className="w-4 h-4" />
-                                {listing.region.nameUz}{listing.district?.nameUz ? `, ${listing.district.nameUz}` : ''}
+                                {listing.region?.nameUz}{listing.district?.nameUz ? `, ${listing.district.nameUz}` : ''}
                             </span>
                             {dateStr && (
                                 <span className="flex items-center gap-1">

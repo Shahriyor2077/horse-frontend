@@ -348,6 +348,14 @@ export async function isFavorite(listingId: string): Promise<boolean> {
     return response.data?.isFavorite ?? false;
 }
 
+// Account
+export async function deleteAccount(): Promise<void> {
+    const response = await apiFetch<AuthResponse<null>>('/api/users/me', { method: 'DELETE' });
+    if (!response.success) {
+        throw new Error(response.message || 'Failed to delete account');
+    }
+}
+
 // Auth
 export interface AuthResponse<T> {
     success: boolean;

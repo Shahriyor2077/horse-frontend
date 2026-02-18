@@ -7,6 +7,7 @@ import { Footer } from './Footer';
 export function LayoutWrapper({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
     const isAdminRoute = pathname?.startsWith('/admin');
+    const isProfilRoute = pathname?.startsWith('/profil');
 
     if (isAdminRoute) {
         return <>{children}</>;
@@ -16,7 +17,7 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
         <div className="flex flex-col min-h-screen">
             <Header />
             <main className="flex-grow">{children}</main>
-            <Footer />
+            {!isProfilRoute && <Footer />}
         </div>
     );
 }

@@ -56,14 +56,13 @@ export function FavoriteButton({ listingId, variant = 'card' }: Props) {
                 onClick={handleClick}
                 aria-label="Saqlash"
                 disabled={loading}
-                className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border text-sm font-medium transition-colors disabled:opacity-70 ${
+                className={`flex items-center justify-center w-9 h-9 rounded-xl border transition-colors disabled:opacity-70 ${
                     saved
                         ? 'bg-red-50 dark:bg-red-900/20 border-red-300 dark:border-red-700 text-red-500 dark:text-red-400'
                         : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-400 hover:border-red-300 hover:text-red-500 dark:hover:text-red-400'
                 }`}
             >
                 <Heart className={`w-4 h-4 ${saved ? 'fill-current' : ''}`} />
-                {saved ? 'Saqlangan' : 'Saqlash'}
             </button>
         );
     }

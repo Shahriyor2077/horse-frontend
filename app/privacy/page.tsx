@@ -1,77 +1,109 @@
 import Link from 'next/link';
+import { ArrowLeft } from 'lucide-react';
 
 export default function PrivacyPage() {
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-slate-800/50 py-12 px-4">
+        <div className="min-h-screen bg-slate-50 dark:bg-slate-800/50 py-8 px-4">
             <div className="max-w-3xl mx-auto">
+                <Link href="/profil" className="inline-flex items-center gap-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 mb-4 transition-colors">
+                    <ArrowLeft className="w-4 h-4" />
+                    Orqaga
+                </Link>
                 <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-8 md:p-12">
-                    <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-8">
+                    <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2">
                         Maxfiylik siyosati
                     </h1>
+                    <p className="text-sm text-slate-400 dark:text-slate-500 mb-8">So'nggi yangilanish: 2026-yil</p>
 
-                    <div className="prose prose-slate dark:prose-invert max-w-none space-y-6">
+                    <div className="prose prose-slate dark:prose-invert max-w-none space-y-8">
+
                         <section>
                             <h2 className="text-xl font-semibold text-slate-800 dark:text-slate-200 mb-3">1. Umumiy ma'lumot</h2>
                             <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
-                                Otbozor.uz platformasi foydalanuvchilarning shaxsiy ma'lumotlarini himoya qilishga alohida e'tibor qaratadi.
-                                Ushbu maxfiylik siyosati qanday ma'lumotlar yig'ilishi va qanday ishlatilishini tushuntiradi.
+                                Otbozor.uz foydalanuvchilarning shaxsiy ma'lumotlarini himoya qilishni o'z zimmasiga oladi. Ushbu maxfiylik siyosati qanday ma'lumotlar yig'ilishini, qanday maqsadlarda ishlatilishini va qanday himoya qilinishini tushuntiradi.
                             </p>
                         </section>
 
                         <section>
                             <h2 className="text-xl font-semibold text-slate-800 dark:text-slate-200 mb-3">2. Yig'iladigan ma'lumotlar</h2>
-                            <ul className="text-slate-600 dark:text-slate-400 list-disc pl-5 space-y-1">
-                                <li>Telegram foydalanuvchi nomi va ID raqami</li>
-                                <li>Telefon raqami (ixtiyoriy)</li>
-                                <li>E'lon ma'lumotlari (matn, rasmlar)</li>
-                                <li>Qurilma va brauzer ma'lumotlari</li>
+                            <p className="text-slate-600 dark:text-slate-400 leading-relaxed mb-3">
+                                Platformaga ro'yxatdan o'tish va foydalanish jarayonida quyidagi ma'lumotlar saqlanadi:
+                            </p>
+                            <ul className="text-slate-600 dark:text-slate-400 list-disc pl-5 space-y-1.5">
+                                <li>Telegram foydalanuvchi nomi va Telegram ID raqami</li>
+                                <li>Ism va familiya, telefon raqami</li>
+                                <li>E'lon ma'lumotlari: sarlavha, tavsif, narx va rasmlar</li>
+                                <li>Joylashuv ma'lumoti: viloyat va tuman</li>
+                                <li>Platforma ichidagi faoliyat: ko'rishlar, sevimlilar, to'lovlar</li>
                             </ul>
                         </section>
 
                         <section>
-                            <h2 className="text-xl font-semibold text-slate-800 dark:text-slate-200 mb-3">3. Ma'lumotlardan foydalanish</h2>
-                            <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
+                            <h2 className="text-xl font-semibold text-slate-800 dark:text-slate-200 mb-3">3. Ma'lumotlardan foydalanish maqsadlari</h2>
+                            <p className="text-slate-600 dark:text-slate-400 leading-relaxed mb-3">
                                 Yig'ilgan ma'lumotlar faqat quyidagi maqsadlarda ishlatiladi:
                             </p>
-                            <ul className="text-slate-600 dark:text-slate-400 list-disc pl-5 space-y-1 mt-2">
-                                <li>Foydalanuvchi autentifikatsiyasi</li>
-                                <li>E'lonlarni boshqarish va ko'rsatish</li>
-                                <li>Platformani yaxshilash va xatolarni tuzatish</li>
-                                <li>Foydalanuvchi bilan aloqa</li>
+                            <ul className="text-slate-600 dark:text-slate-400 list-disc pl-5 space-y-1.5">
+                                <li>Foydalanuvchi shaxsini tasdiqlash va autentifikatsiya</li>
+                                <li>E'lonlarni yaratish, ko'rsatish va boshqarish</li>
+                                <li>Sotuvchi va xaridor o'rtasida aloqa imkoniyatini ta'minlash</li>
+                                <li>To'lov operatsiyalarini amalga oshirish (Click orqali)</li>
+                                <li>Platforma xizmatini yaxshilash va xatolarni tuzatish</li>
+                                <li>Firibgarlik va qoidabuzarliklarni aniqlash</li>
                             </ul>
                         </section>
 
                         <section>
-                            <h2 className="text-xl font-semibold text-slate-800 dark:text-slate-200 mb-3">4. Ma'lumotlarni himoya qilish</h2>
+                            <h2 className="text-xl font-semibold text-slate-800 dark:text-slate-200 mb-3">4. Telegram orqali autentifikatsiya</h2>
                             <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
-                                Barcha shaxsiy ma'lumotlar shifrlangan holda saqlanadi.
-                                Uchinchi tomonlarga foydalanuvchi ma'lumotlari taqdim etilmaydi, qonun talab qilgan hollar bundan mustasno.
+                                Platforma Telegram messenger orqali kirish tizimidan foydalanadi. Parol saqlanmaydi. Kirish jarayonida Telegram sizning shaxsingizni tasdiqlaydi va platforma faqat umumiy profil ma'lumotlarini oladi. Siz istalgan vaqt platformadan chiqishingiz mumkin.
                             </p>
                         </section>
 
                         <section>
-                            <h2 className="text-xl font-semibold text-slate-800 dark:text-slate-200 mb-3">5. Cookie fayllar</h2>
-                            <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
-                                Platforma autentifikatsiya va sessiyalarni boshqarish uchun cookie fayllardan foydalanadi.
-                                Bu fayllar foydalanuvchi tajribasini yaxshilash uchun zarur.
+                            <h2 className="text-xl font-semibold text-slate-800 dark:text-slate-200 mb-3">5. Ma'lumotlarni uchinchi tomonlarga berish</h2>
+                            <p className="text-slate-600 dark:text-slate-400 leading-relaxed mb-3">
+                                Shaxsiy ma'lumotlaringiz uchinchi tomonlarga sotilmaydi yoki berilmaydi. Istisno hollar:
                             </p>
-                        </section>
-
-                        <section>
-                            <h2 className="text-xl font-semibold text-slate-800 dark:text-slate-200 mb-3">6. Foydalanuvchi huquqlari</h2>
-                            <ul className="text-slate-600 dark:text-slate-400 list-disc pl-5 space-y-1">
-                                <li>O'z ma'lumotlaringizni ko'rish va tahrirlash huquqi</li>
-                                <li>Akkauntni o'chirish va barcha ma'lumotlarni yo'q qilish huquqi</li>
-                                <li>Ma'lumotlarni qayta ishlashga rozilikni bekor qilish huquqi</li>
+                            <ul className="text-slate-600 dark:text-slate-400 list-disc pl-5 space-y-1.5">
+                                <li><strong className="text-slate-700 dark:text-slate-300">Click to'lov tizimi</strong> — to'lov amalga oshirilganda minimal ma'lumotlar uzatiladi</li>
+                                <li><strong className="text-slate-700 dark:text-slate-300">Qonun talablari</strong> — davlat organlari rasmiy so'rov yuborgan holatlarda</li>
                             </ul>
                         </section>
 
                         <section>
-                            <h2 className="text-xl font-semibold text-slate-800 dark:text-slate-200 mb-3">7. Aloqa</h2>
-                            <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
-                                Maxfiylik siyosati bo'yicha savollar uchun <Link href="/aloqa" className="text-amber-600 dark:text-amber-400 hover:underline">aloqa sahifasi</Link> orqali murojaat qilishingiz mumkin.
+                            <h2 className="text-xl font-semibold text-slate-800 dark:text-slate-200 mb-3">6. Ma'lumotlarni himoya qilish</h2>
+                            <ul className="text-slate-600 dark:text-slate-400 list-disc pl-5 space-y-1.5">
+                                <li>Barcha ulanishlar HTTPS orqali shifrlangan holda amalga oshiriladi</li>
+                                <li>Parollar saqlanmaydi — autentifikatsiya Telegram orqali</li>
+                                <li>Ma'lumotlar bazasi himoyalangan serverlarda saqlanadi</li>
+                                <li>Cookie fayllar faqat sessiyani boshqarish uchun ishlatiladi</li>
+                            </ul>
+                        </section>
+
+                        <section>
+                            <h2 className="text-xl font-semibold text-slate-800 dark:text-slate-200 mb-3">7. Foydalanuvchi huquqlari</h2>
+                            <p className="text-slate-600 dark:text-slate-400 leading-relaxed mb-3">
+                                Siz quyidagi huquqlarga egasiz:
+                            </p>
+                            <ul className="text-slate-600 dark:text-slate-400 list-disc pl-5 space-y-1.5">
+                                <li>O'z profilingiz va e'lonlaringizni ko'rish hamda tahrirlash</li>
+                                <li>E'lonlaringizni istalgan vaqt o'chirish</li>
+                                <li>Akkauntni o'chirish va barcha ma'lumotlarni yo'q qilish talabi</li>
+                                <li>Ma'lumotlaringizni qayta ishlashga rozilikni bekor qilish</li>
+                            </ul>
+                            <p className="text-slate-600 dark:text-slate-400 leading-relaxed mt-3">
+                                Akkauntni to'liq o'chirish yoki ma'lumotlaringizni yo'q qilish uchun <Link href="/aloqa" className="text-amber-600 dark:text-amber-400 hover:underline">aloqa sahifasi</Link> orqali murojaat qiling.
                             </p>
                         </section>
+
+                        <section>
+                            <h2 className="text-xl font-semibold text-slate-800 dark:text-slate-200 mb-3">8. Savollar</h2>
+                            <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
+                                Maxfiylik siyosati bo'yicha savollar yoki shikoyatlar uchun <Link href="/aloqa" className="text-amber-600 dark:text-amber-400 hover:underline">aloqa sahifasi</Link> orqali murojaat qilishingiz mumkin.
+                            </p>
+                        </section>
+
                     </div>
                 </div>
             </div>
