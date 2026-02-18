@@ -2,7 +2,7 @@
 
 import { useAuth } from '@/components/providers/AuthProvider';
 import { useRouter } from 'next/navigation';
-import { LogOut, FileText, Heart, Plus, Shield, MessageCircle, ChevronRight, Trash2, AlertTriangle, Send } from 'lucide-react';
+import { LogOut, FileText, Heart, Plus, Shield, MessageCircle, ChevronRight, Trash2, AlertTriangle, Send, Pencil, Check, X as XIcon } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { RequireAuth } from '@/components/auth/RequireAuth';
@@ -14,6 +14,34 @@ function ProfilPageContent() {
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [deleting, setDeleting] = useState(false);
     const [deleteError, setDeleteError] = useState<string | null>(null);
+    const [editingName, setEditingName] = useState(false);
+    const [nameValue, setNameValue] = useState('');
+    const [savingName, setSavingName] = useState(false);
+
+    async function handleSaveName() {
+        if (!nameValue.trim()) return;
+        setSavingName(true);
+        try {
+            const token = localStorage.getItem('accessToken');
+            const res = await fetch(
+                `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/users/me`,
+                {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                    body: JSON.stringify({ displayName: nameValue.trim() }),
+                }
+            );
+            if (res.ok) {
+                // Update local user display
+                if (user) user.displayName = nameValue.trim();
+                setEditingName(false);
+            }
+        } catch (e) {
+            console.error(e);
+        } finally {
+            setSavingName(false);
+        }
+    }
 
     async function handleDeleteAccount() {
         setDeleting(true);
@@ -61,9 +89,35 @@ function ProfilPageContent() {
                                 </div>
                             )}
                             <div className="flex-1 text-center sm:text-left min-w-0">
-                                <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-slate-100 mb-1 sm:mb-2 truncate">
-                                    {user.displayName}
-                                </h1>
+                                {editingName ? (
+                                    <div className="flex items-center gap-2 mb-1 sm:mb-2">
+                                        <input
+                                            autoFocus
+                                            value={nameValue}
+                                            onChange={e => setNameValue(e.target.value)}
+                                            onKeyDown={e => { if (e.key === 'Enter') handleSaveName(); if (e.key === 'Escape') setEditingName(false); }}
+                                            className="flex-1 text-xl font-bold bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-xl px-3 py-1.5 outline-none border-2 border-primary-400 min-w-0"
+                                        />
+                                        <button onClick={handleSaveName} disabled={savingName} className="w-8 h-8 rounded-full bg-primary-600 text-white flex items-center justify-center hover:bg-primary-700 flex-shrink-0">
+                                            <Check className="w-4 h-4" />
+                                        </button>
+                                        <button onClick={() => setEditingName(false)} className="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center hover:bg-slate-300 dark:hover:bg-slate-600 flex-shrink-0">
+                                            <XIcon className="w-4 h-4" />
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <div className="flex items-center gap-2 justify-center sm:justify-start mb-1 sm:mb-2">
+                                        <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-slate-100 truncate">
+                                            {user.displayName}
+                                        </h1>
+                                        <button
+                                            onClick={() => { setNameValue(user.displayName); setEditingName(true); }}
+                                            className="w-7 h-7 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 flex items-center justify-center hover:bg-slate-200 dark:hover:bg-slate-600 flex-shrink-0"
+                                        >
+                                            <Pencil className="w-3.5 h-3.5" />
+                                        </button>
+                                    </div>
+                                )}
                                 {user.telegramUsername && (
                                     <p className="text-slate-600 dark:text-slate-400 mb-2 truncate">
                                         @{user.telegramUsername}

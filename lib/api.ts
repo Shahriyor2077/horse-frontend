@@ -4,6 +4,30 @@ interface FetchOptions extends RequestInit {
     params?: Record<string, string | number | boolean | undefined>;
 }
 
+// Try to refresh access token using the refresh token cookie
+let isRefreshing = false;
+async function tryRefreshToken(): Promise<string | null> {
+    if (isRefreshing) return null;
+    isRefreshing = true;
+    try {
+        const res = await fetch(`${API_BASE}/api/auth/refresh`, {
+            method: 'POST',
+            credentials: 'include',
+        });
+        if (!res.ok) return null;
+        const data = await res.json();
+        const newToken = data?.data?.accessToken || data?.accessToken;
+        if (newToken && typeof window !== 'undefined') {
+            localStorage.setItem('accessToken', newToken);
+        }
+        return newToken || null;
+    } catch {
+        return null;
+    } finally {
+        isRefreshing = false;
+    }
+}
+
 export async function apiFetch<T>(
     endpoint: string,
     options: FetchOptions = {}
@@ -25,34 +49,40 @@ export async function apiFetch<T>(
         }
     }
 
-    // Get token from localStorage for Authorization header
-    const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+    const isAuthEndpoint = endpoint.includes('/auth/');
 
-    const response = await fetch(url, {
-        ...init,
-        cache: init.cache ?? 'no-store',
-        credentials: 'include',
-        headers: {
-            'Content-Type': 'application/json',
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
-            ...init.headers,
-        },
-    });
+    const doFetch = (token: string | null) =>
+        fetch(url, {
+            ...init,
+            cache: init.cache ?? 'no-store',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json',
+                ...(token ? { Authorization: `Bearer ${token}` } : {}),
+                ...init.headers,
+            },
+        });
+
+    const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+    let response = await doFetch(token);
+
+    // On 401, try to refresh token and retry once
+    if (response.status === 401 && !isAuthEndpoint) {
+        const newToken = await tryRefreshToken();
+        if (newToken) {
+            response = await doFetch(newToken);
+        }
+    }
 
     if (!response.ok) {
         if (response.status === 401) {
-            // Read the actual error message from server response
             const errorBody = await response.json().catch(() => ({}));
-            const errorMessage = errorBody.message || 'Unauthorized';
-
-            // Only clear tokens for non-login endpoints
-            const isLoginEndpoint = endpoint.includes('/auth/') && (endpoint.includes('/login') || endpoint.includes('/verify'));
-            if (!isLoginEndpoint && typeof window !== 'undefined') {
+            // Refresh failed too — clear tokens
+            if (!isAuthEndpoint && typeof window !== 'undefined') {
                 localStorage.removeItem('accessToken');
                 localStorage.removeItem('refreshToken');
             }
-
-            return { success: false, message: errorMessage } as T;
+            return { success: false, message: errorBody.message || 'Unauthorized' } as T;
         }
 
         const error = await response.json().catch(() => ({}));

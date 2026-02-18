@@ -28,7 +28,6 @@ function CreateProductForm() {
         priceAmount: '',
         priceCurrency: 'UZS',
         hasDelivery: false,
-        stockStatus: 'IN_STOCK',
     });
 
     const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
@@ -73,7 +72,6 @@ function CreateProductForm() {
                     priceAmount: Number(form.priceAmount),
                     priceCurrency: form.priceCurrency,
                     hasDelivery: form.hasDelivery,
-                    stockStatus: form.stockStatus,
                 }),
             });
 
@@ -179,21 +177,6 @@ function CreateProductForm() {
                         className="input min-h-[100px] resize-none"
                         placeholder="Mahsulot haqida qo'shimcha ma'lumot..."
                         rows={4}
-                    />
-                </div>
-
-                {/* Stock status */}
-                <div>
-                    <label className="label">Mavjudlik holati</label>
-                    <CustomSelect
-                        name="stockStatus"
-                        value={form.stockStatus}
-                        onChange={handleChange}
-                        options={[
-                            { value: 'IN_STOCK', label: 'Mavjud' },
-                            { value: 'OUT_OF_STOCK', label: "Sotuvda yo'q" },
-                            { value: 'PREORDER', label: 'Oldindan buyurtma' },
-                        ]}
                     />
                 </div>
 
