@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { ShoppingCart, Loader2, Search, X, Plus } from 'lucide-react';
+import { ShoppingCart, Loader2, Search, X, Plus, ChevronDown, SlidersHorizontal } from 'lucide-react';
 
 interface Product {
     id: string;
@@ -46,6 +46,8 @@ export default function ProductsPage() {
     const [priceMin, setPriceMin] = useState('');
     const [priceMax, setPriceMax] = useState('');
     const [hasDelivery, setHasDelivery] = useState(false);
+    const [isCatOpen, setIsCatOpen] = useState(true);
+    const [isFilterOpen, setIsFilterOpen] = useState(false);
 
     const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
@@ -170,8 +172,8 @@ export default function ProductsPage() {
             </form>
 
             <div className="flex flex-col lg:flex-row gap-8">
-                {/* Sidebar */}
-                <aside className="lg:w-64 flex-shrink-0">
+                {/* Sidebar — desktop only */}
+                <aside className="hidden lg:block lg:w-64 flex-shrink-0">
                     <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-4 sticky top-24 space-y-6">
 
                         {/* Active filters reset */}
@@ -185,40 +187,48 @@ export default function ProductsPage() {
                             </button>
                         )}
 
-                        {/* Categories */}
+                        {/* Categories — collapsible */}
                         <div>
-                            <h3 className="font-bold text-slate-900 dark:text-slate-100 mb-3 text-sm uppercase tracking-wide">Kategoriyalar</h3>
-                            <ul className="space-y-1">
-                                <li>
-                                    <button
-                                        onClick={() => { setSelectedCategory(null); setPage(1); }}
-                                        className={`block w-full text-left px-3 py-2 rounded-lg transition-colors text-sm ${!selectedCategory
-                                            ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400 font-medium'
-                                            : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-slate-100'
-                                            }`}
-                                    >
-                                        Barchasi
-                                    </button>
-                                </li>
-                                {categories.map((cat) => (
-                                    <li key={cat.id}>
+                            <button
+                                onClick={() => setIsCatOpen(v => !v)}
+                                className="flex items-center justify-between w-full font-bold text-slate-900 dark:text-slate-100 text-sm uppercase tracking-wide mb-1"
+                            >
+                                Kategoriyalar
+                                <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${isCatOpen ? 'rotate-180' : ''}`} />
+                            </button>
+                            {isCatOpen && (
+                                <ul className="space-y-1 mt-2">
+                                    <li>
                                         <button
-                                            onClick={() => { setSelectedCategory(cat.id); setPage(1); }}
-                                            className={`block w-full text-left px-3 py-2 rounded-lg transition-colors text-sm ${selectedCategory === cat.id
+                                            onClick={() => { setSelectedCategory(null); setPage(1); }}
+                                            className={`block w-full text-left px-3 py-2 rounded-lg transition-colors text-sm ${!selectedCategory
                                                 ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400 font-medium'
                                                 : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-slate-100'
                                                 }`}
                                         >
-                                            {cat.name}
-                                            {cat._count && cat._count.products > 0 && (
-                                                <span className="ml-2 text-xs text-slate-400 dark:text-slate-500">
-                                                    ({cat._count.products})
-                                                </span>
-                                            )}
+                                            Barchasi
                                         </button>
                                     </li>
-                                ))}
-                            </ul>
+                                    {categories.map((cat) => (
+                                        <li key={cat.id}>
+                                            <button
+                                                onClick={() => { setSelectedCategory(cat.id); setPage(1); }}
+                                                className={`block w-full text-left px-3 py-2 rounded-lg transition-colors text-sm ${selectedCategory === cat.id
+                                                    ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400 font-medium'
+                                                    : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-slate-100'
+                                                    }`}
+                                            >
+                                                {cat.name}
+                                                {cat._count && cat._count.products > 0 && (
+                                                    <span className="ml-2 text-xs text-slate-400 dark:text-slate-500">
+                                                        ({cat._count.products})
+                                                    </span>
+                                                )}
+                                            </button>
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
                         </div>
 
                         {/* Price Range */}
@@ -268,15 +278,87 @@ export default function ProductsPage() {
                     </div>
                 </aside>
 
+                {/* Mobile filter drawer */}
+                {isFilterOpen && (
+                    <div className="fixed inset-0 z-50 lg:hidden">
+                        <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setIsFilterOpen(false)} />
+                        <div className="absolute right-0 top-0 bottom-0 w-72 max-w-[85vw] bg-white dark:bg-slate-900 shadow-2xl flex flex-col">
+                            <div className="flex items-center justify-between px-5 py-4 border-b border-slate-200 dark:border-slate-700">
+                                <h2 className="font-semibold text-slate-900 dark:text-slate-100">Filtrlar</h2>
+                                <button onClick={() => setIsFilterOpen(false)} className="p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                                    <X className="w-5 h-5" />
+                                </button>
+                            </div>
+                            <div className="flex-1 overflow-y-auto p-4 space-y-6">
+                                {hasActiveFilters && (
+                                    <button onClick={() => { resetFilters(); setIsFilterOpen(false); }} className="flex items-center gap-2 text-sm text-primary-600 dark:text-primary-400 font-medium">
+                                        <X className="w-4 h-4" />Filtrlarni tozalash
+                                    </button>
+                                )}
+                                {/* Categories */}
+                                <div>
+                                    <button onClick={() => setIsCatOpen(v => !v)} className="flex items-center justify-between w-full font-bold text-slate-900 dark:text-slate-100 text-sm uppercase tracking-wide mb-1">
+                                        Kategoriyalar
+                                        <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${isCatOpen ? 'rotate-180' : ''}`} />
+                                    </button>
+                                    {isCatOpen && (
+                                        <ul className="space-y-1 mt-2">
+                                            <li>
+                                                <button onClick={() => { setSelectedCategory(null); setPage(1); }} className={`block w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${!selectedCategory ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400 font-medium' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700'}`}>
+                                                    Barchasi
+                                                </button>
+                                            </li>
+                                            {categories.map((cat) => (
+                                                <li key={cat.id}>
+                                                    <button onClick={() => { setSelectedCategory(cat.id); setPage(1); }} className={`block w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${selectedCategory === cat.id ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400 font-medium' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700'}`}>
+                                                        {cat.name}
+                                                        {cat._count && cat._count.products > 0 && <span className="ml-2 text-xs text-slate-400">({cat._count.products})</span>}
+                                                    </button>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    )}
+                                </div>
+                                {/* Price */}
+                                <div>
+                                    <h3 className="font-bold text-slate-900 dark:text-slate-100 mb-3 text-sm uppercase tracking-wide">Narx (so&apos;m)</h3>
+                                    <form onSubmit={(e) => { handlePriceFilter(e); setIsFilterOpen(false); }} className="space-y-2">
+                                        <input type="number" value={priceMin} onChange={(e) => setPriceMin(e.target.value)} placeholder="Dan" min={0} className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-primary-500" />
+                                        <input type="number" value={priceMax} onChange={(e) => setPriceMax(e.target.value)} placeholder="Gacha" min={0} className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-primary-500" />
+                                        <button type="submit" className="w-full py-2 text-sm font-medium bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors">Qo&apos;llash</button>
+                                    </form>
+                                </div>
+                                {/* Delivery */}
+                                <div>
+                                    <h3 className="font-bold text-slate-900 dark:text-slate-100 mb-3 text-sm uppercase tracking-wide">Yetkazib berish</h3>
+                                    <label className="flex items-center gap-3 cursor-pointer select-none">
+                                        <div onClick={() => { setHasDelivery((v) => !v); setPage(1); }} className={`relative w-10 h-6 rounded-full transition-colors ${hasDelivery ? 'bg-primary-600' : 'bg-slate-200 dark:bg-slate-600'}`}>
+                                            <span className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${hasDelivery ? 'translate-x-4' : 'translate-x-0'}`} />
+                                        </div>
+                                        <span className="text-sm text-slate-700 dark:text-slate-300">Faqat yetkazib beriladiganlar</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
                 {/* Products Grid */}
                 <div className="flex-grow">
-                    {/* Results count */}
-                    {!loading && (
-                        <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
-                            {total} ta mahsulot topildi
-                        </p>
-                    )}
 
+                    {/* Mobile filter button — always visible */}
+                    <div className="flex items-center justify-between mb-4">
+                        <p className="text-sm text-slate-500 dark:text-slate-400">
+                            {!loading && `${total} ta mahsulot`}
+                        </p>
+                        <button
+                            onClick={() => setIsFilterOpen(true)}
+                            className="lg:hidden flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                        >
+                            <SlidersHorizontal className="w-4 h-4" />
+                            Filtr{hasActiveFilters ? ' •' : ''}
+                        </button>
+                    </div>
                     {loading ? (
                         <div className="flex items-center justify-center py-20">
                             <Loader2 className="w-8 h-8 animate-spin text-primary-600" />

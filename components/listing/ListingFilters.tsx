@@ -1,11 +1,16 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { getRegions, getBreeds, Region, Breed } from '@/lib/api';
+import { getRegionsWithDistricts, getBreeds, Region, District, Breed } from '@/lib/api';
 import { CustomSelect } from '@/components/ui/CustomSelect';
 
-export function ListingFilters() {
+interface Props {
+    onApply?: () => void;
+    hideTitle?: boolean;
+}
+
+export function ListingFilters({ onApply, hideTitle }: Props) {
     const router = useRouter();
     const searchParams = useSearchParams();
 
@@ -28,7 +33,7 @@ export function ListingFilters() {
         async function loadData() {
             try {
                 const [regionsData, breedsData] = await Promise.all([
-                    getRegions(),
+                    getRegionsWithDistricts(),
                     getBreeds(),
                 ]);
                 setRegions(regionsData);
@@ -42,9 +47,21 @@ export function ListingFilters() {
         loadData();
     }, []);
 
+    // Derive districts from the selected region
+    const districts = useMemo<District[]>(() => {
+        if (!filters.regionId) return [];
+        const region = regions.find(r => r.id === filters.regionId);
+        return region?.districts || [];
+    }, [filters.regionId, regions]);
+
     const handleChange = (e: { target: { name: string; value: string } }) => {
         const { name, value } = e.target;
-        setFilters(prev => ({ ...prev, [name]: value }));
+        if (name === 'regionId') {
+            // Clear district when region changes
+            setFilters(prev => ({ ...prev, regionId: value, districtId: '' }));
+        } else {
+            setFilters(prev => ({ ...prev, [name]: value }));
+        }
     };
 
     const applyFilters = () => {
@@ -53,6 +70,7 @@ export function ListingFilters() {
             if (value) params.append(key, value);
         });
         router.push(`/bozor?${params.toString()}`);
+        onApply?.();
     };
 
     const clearFilters = () => {
@@ -66,18 +84,21 @@ export function ListingFilters() {
             priceMax: '',
         });
         router.push('/bozor');
+        onApply?.();
     };
 
     if (isLoading) return <div className="p-4"><div className="animate-pulse h-64 bg-slate-100 dark:bg-slate-700 rounded-xl"></div></div>;
 
     return (
         <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-4 lg:p-6 space-y-6">
-            <div className="flex items-center justify-between">
-                <h3 className="font-semibold text-lg text-slate-900 dark:text-slate-100">Filtrlar</h3>
-                <button onClick={clearFilters} className="text-sm text-primary-600 hover:text-primary-700 font-medium">
-                    Tozalash
-                </button>
-            </div>
+            {!hideTitle && (
+                <div className="flex items-center justify-between">
+                    <h3 className="font-semibold text-lg text-slate-900 dark:text-slate-100">Filtrlar</h3>
+                    <button onClick={clearFilters} className="text-sm text-primary-600 hover:text-primary-700 font-medium">
+                        Tozalash
+                    </button>
+                </div>
+            )}
 
             {/* Region */}
             <div>
@@ -90,6 +111,22 @@ export function ListingFilters() {
                     options={[
                         { value: '', label: 'Barchasi' },
                         ...regions.map(r => ({ value: r.id, label: r.nameUz }))
+                    ]}
+                />
+            </div>
+
+            {/* District */}
+            <div>
+                <label className="label">Tuman</label>
+                <CustomSelect
+                    name="districtId"
+                    value={filters.districtId}
+                    onChange={handleChange}
+                    placeholder="Barchasi"
+                    disabled={!filters.regionId || districts.length === 0}
+                    options={[
+                        { value: '', label: 'Barchasi' },
+                        ...districts.map(d => ({ value: d.id, label: d.nameUz }))
                     ]}
                 />
             </div>
@@ -179,6 +216,12 @@ export function ListingFilters() {
                     ))}
                 </div>
             </div>
+
+            {hideTitle && (
+                <button onClick={clearFilters} className="text-sm text-primary-600 hover:text-primary-700 font-medium block">
+                    Filtrlarni tozalash
+                </button>
+            )}
 
             <button onClick={applyFilters} className="btn btn-primary w-full">
                 Filtrlash

@@ -79,10 +79,12 @@ export interface Listing {
     hasPassport: boolean;
     hasVaccine?: boolean;
     hasVideo: boolean;
+    isTop?: boolean;
     viewCount: number;
     favoriteCount: number;
     status: string;
     publishedAt?: string;
+    createdAt?: string;
     region: { nameUz: string; slug: string };
     district?: { nameUz: string; slug: string };
     breed?: { name: string; slug: string };

@@ -3,42 +3,54 @@ import { KopkariEvent } from '@/lib/api';
 import { MapPin, Calendar, Trophy, ChevronRight } from 'lucide-react';
 import { GiHorseshoe } from 'react-icons/gi';
 import Link from 'next/link';
-import { Pagination } from '@/components/listing/Pagination';
+import { KopkariFilters } from './KopkariFilters';
 
-export const revalidate = 0; // Always fetch fresh data
+export const revalidate = 0;
 
-const EVENTS_LIMIT = 12;
-
-async function getPublicEvents(page = 1) {
+async function getPublicEvents(regionId?: string, status?: string) {
     try {
         const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-        const res = await fetch(`${API_URL}/api/events?page=${page}&limit=${EVENTS_LIMIT}`, {
-            cache: 'no-store',
-        });
+        const params = new URLSearchParams();
+        if (regionId) params.set('regionId', regionId);
+        if (status === 'upcoming') params.set('upcoming', 'true');
+        if (status === 'past') params.set('past', 'true');
+
+        const res = await fetch(`${API_URL}/api/events?${params.toString()}`, { cache: 'no-store' });
         const data = await res.json();
         if (data.success) {
-            const events = Array.isArray(data.data) ? data.data : (data.data?.data || []);
-            const pagination = data.data?.pagination || data.pagination || { page: 1, limit: EVENTS_LIMIT, total: events.length, totalPages: 1 };
-            return { events, pagination };
+            return Array.isArray(data.data) ? data.data : (data.data?.data || []);
         }
-        return { events: [], pagination: { page: 1, limit: EVENTS_LIMIT, total: 0, totalPages: 1 } };
+        return [];
     } catch {
-        return { events: [], pagination: { page: 1, limit: EVENTS_LIMIT, total: 0, totalPages: 1 } };
+        return [];
+    }
+}
+
+async function getRegions() {
+    try {
+        const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+        const res = await fetch(`${API_URL}/api/regions`, { cache: 'no-store' });
+        const data = await res.json();
+        return data.success ? (data.data || []) : [];
+    } catch {
+        return [];
     }
 }
 
 export const metadata = {
     title: "Ko'pkari taqvimi - Barcha tadbirlar | Otbozor",
-    description: "O'zbekistondagi barcha ko'pkari va ot musobaqalari taqvimi. Sovrinlar, joylashuv va tashkilotchilar haqida ma'lumot.",
+    description: "O'zbekistondagi barcha ko'pkari va ot musobaqalari taqvimi.",
 };
 
 export default async function KopkariPage({
     searchParams,
 }: {
-    searchParams: { page?: string };
+    searchParams: { regionId?: string; status?: string };
 }) {
-    const page = Number(searchParams.page) || 1;
-    const { events, pagination } = await getPublicEvents(page);
+    const [events, regions] = await Promise.all([
+        getPublicEvents(searchParams.regionId, searchParams.status),
+        getRegions(),
+    ]);
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-800/50">
@@ -47,15 +59,24 @@ export default async function KopkariPage({
                 <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                     <h1 className="text-3xl md:text-4xl font-bold mb-2">Ko'pkari Taqvimi</h1>
                     <p className="text-amber-100 text-lg">Yaqinlashib kelayotgan ot choptirish musobaqalari</p>
-                    <p className="text-amber-200 text-sm mt-1">{pagination.total || events.length} ta tadbir rejalashtirilgan</p>
+                    <p className="text-amber-200 text-sm mt-1">{events.length} ta tadbir</p>
                 </div>
             </div>
 
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                {/* Filters */}
+                <KopkariFilters
+                    regions={regions}
+                    currentRegionId={searchParams.regionId || ''}
+                    currentStatus={searchParams.status || ''}
+                />
+
+                {/* Events grid */}
                 {events.length > 0 ? (
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                         {events.map((event: KopkariEvent) => {
                             const date = new Date(event.startsAt);
+                            const isPast = date < new Date();
                             return (
                                 <Link
                                     key={event.id}
@@ -63,7 +84,11 @@ export default async function KopkariPage({
                                     className="group bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-md hover:border-amber-200 dark:hover:border-amber-700 transition-all flex gap-4 items-center"
                                 >
                                     {/* Date Badge */}
-                                    <div className="flex-shrink-0 w-16 h-16 bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800 rounded-xl flex flex-col items-center justify-center text-amber-600 dark:text-amber-400">
+                                    <div className={`flex-shrink-0 w-16 h-16 rounded-xl flex flex-col items-center justify-center border ${
+                                        isPast
+                                            ? 'bg-slate-50 dark:bg-slate-700/50 border-slate-200 dark:border-slate-600 text-slate-400 dark:text-slate-500'
+                                            : 'bg-amber-50 dark:bg-amber-900/20 border-amber-100 dark:border-amber-800 text-amber-600 dark:text-amber-400'
+                                    }`}>
                                         <span className="text-[10px] font-bold uppercase leading-none">
                                             {date.toLocaleDateString('uz-UZ', { month: 'short' })}
                                         </span>
@@ -75,9 +100,16 @@ export default async function KopkariPage({
 
                                     {/* Info */}
                                     <div className="flex-1 min-w-0">
-                                        <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors mb-1 line-clamp-2">
-                                            {event.title}
-                                        </h3>
+                                        <div className="flex items-start gap-2 mb-1">
+                                            <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors line-clamp-2">
+                                                {event.title}
+                                            </h3>
+                                            {isPast && (
+                                                <span className="flex-shrink-0 text-[10px] px-1.5 py-0.5 bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 rounded-full font-medium mt-0.5">
+                                                    O'tgan
+                                                </span>
+                                            )}
+                                        </div>
                                         <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-slate-500 dark:text-slate-400 mb-2">
                                             <span className="flex items-center gap-1">
                                                 <MapPin className="w-3.5 h-3.5" />
@@ -104,19 +136,9 @@ export default async function KopkariPage({
                 ) : (
                     <div className="text-center py-20 bg-white dark:bg-slate-800 rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-700">
                         <div className="mb-4 flex justify-center"><GiHorseshoe className="w-16 h-16 text-slate-300 dark:text-slate-600" /></div>
-                        <h3 className="text-xl font-semibold text-slate-700 dark:text-slate-300 mb-2">Hozircha tadbirlar yo'q</h3>
-                        <p className="text-slate-500 dark:text-slate-400">Kutilayotgan ko'pkari musobaqalari tez orada qo'shiladi</p>
+                        <h3 className="text-xl font-semibold text-slate-700 dark:text-slate-300 mb-2">Tadbirlar topilmadi</h3>
+                        <p className="text-slate-500 dark:text-slate-400">Boshqa filter tanlang</p>
                     </div>
-                )}
-
-                {/* Pagination */}
-                {pagination.totalPages > 1 && (
-                    <Pagination
-                        currentPage={pagination.page}
-                        totalPages={pagination.totalPages}
-                        searchParams={searchParams}
-                        basePath="/kopkari"
-                    />
                 )}
             </div>
         </div>

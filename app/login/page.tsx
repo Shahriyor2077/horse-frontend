@@ -7,7 +7,7 @@ import Image from "next/image";
 import { Loader2 } from "lucide-react";
 import { startTelegramAuth, verifyCode, getCurrentUser } from "@/lib/api";
 
-const CODE_LEN = 8;
+const CODE_LEN = 6;
 
 function LoginContent() {
   const [loading, setLoading] = useState(false);

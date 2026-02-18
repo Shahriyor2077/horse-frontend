@@ -1,8 +1,9 @@
 import Link from 'next/link';
-import { MapPin, Video, CheckCircle } from 'lucide-react';
+import { MapPin, Video, Clock } from 'lucide-react';
 import { GiHorseHead } from 'react-icons/gi';
 import { Listing } from '@/lib/api';
-import { formatPrice } from '@/lib/utils';
+import { formatPrice, formatRelativeTime } from '@/lib/utils';
+import { FavoriteButton } from './FavoriteButton';
 
 interface ListingCardProps {
     listing: Listing;
@@ -10,6 +11,7 @@ interface ListingCardProps {
 
 export function ListingCard({ listing }: ListingCardProps) {
     const mainImage = listing.media?.[0]?.thumbUrl || listing.media?.[0]?.url || null;
+    const dateStr = listing.publishedAt || listing.createdAt;
 
     return (
         <Link
@@ -27,8 +29,13 @@ export function ListingCard({ listing }: ListingCardProps) {
                     <div className="w-full h-full flex items-center justify-center text-slate-300"><GiHorseHead className="w-20 h-20" /></div>
                 )}
 
-                {/* Badges */}
+                {/* Top-left badges */}
                 <div className="absolute top-2 left-2 flex gap-1 flex-wrap">
+                    {listing.isTop && (
+                        <span className="badge bg-amber-500 text-white font-bold shadow">
+                            Top
+                        </span>
+                    )}
                     {listing.hasVideo && (
                         <span className="badge bg-black/60 text-white backdrop-blur-sm flex items-center gap-1">
                             <Video className="w-3 h-3" />
@@ -37,16 +44,10 @@ export function ListingCard({ listing }: ListingCardProps) {
                     )}
                 </div>
 
-                {listing.user?.isVerified && (
-                    <div className="absolute top-2 right-2">
-                        <span className="badge badge-success backdrop-blur-sm shadow-sm">
-                            <CheckCircle className="w-3 h-3 mr-1" />
-                            Tasdiqlangan
-                        </span>
-                    </div>
-                )}
-
-                {/* Bottom gradient for text readability if needed, but here we have separation */}
+                {/* Top-right: save button */}
+                <div className="absolute top-2 right-2">
+                    <FavoriteButton listingId={listing.id} />
+                </div>
             </div>
 
             <div className="p-3">
@@ -80,12 +81,20 @@ export function ListingCard({ listing }: ListingCardProps) {
                     )}
                 </div>
 
-                <div className="flex items-center text-xs text-slate-400 dark:text-slate-500 mt-2 pt-2 border-t border-slate-100 dark:border-slate-700">
-                    <MapPin className="w-3 h-3 mr-1" />
-                    <span className="truncate">
-                        {listing.region.nameUz}
-                        {listing.district ? `, ${listing.district.nameUz}` : ''}
+                <div className="flex items-center justify-between text-xs text-slate-400 dark:text-slate-500 mt-2 pt-2 border-t border-slate-100 dark:border-slate-700">
+                    <span className="flex items-center gap-1 truncate">
+                        <MapPin className="w-3 h-3 flex-shrink-0" />
+                        <span className="truncate">
+                            {listing.region.nameUz}
+                            {listing.district ? `, ${listing.district.nameUz}` : ''}
+                        </span>
                     </span>
+                    {dateStr && (
+                        <span className="flex items-center gap-1 flex-shrink-0 ml-2">
+                            <Clock className="w-3 h-3" />
+                            {formatRelativeTime(dateStr)}
+                        </span>
+                    )}
                 </div>
             </div>
         </Link>

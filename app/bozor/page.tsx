@@ -2,6 +2,7 @@ import { Suspense } from 'react';
 import { getListings, ListingsFilter } from '@/lib/api';
 import { ListingCard } from '@/components/listing/ListingCard';
 import { ListingFilters } from '@/components/listing/ListingFilters';
+import { BozorMobileFilters } from '@/components/listing/BozorMobileFilters';
 import { SortSelect } from '@/components/listing/SortSelect';
 import { Search } from 'lucide-react';
 import { Pagination } from '../../components/listing/Pagination';
@@ -24,8 +25,8 @@ export default async function BozorPage({
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
             <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
 
-                {/* Left Sidebar Filters */}
-                <aside className="w-full lg:w-1/4 lg:flex-shrink-0">
+                {/* Left Sidebar Filters — desktop only */}
+                <aside className="hidden lg:block w-1/4 flex-shrink-0">
                     <Suspense fallback={
                         <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
                             <div className="animate-pulse space-y-4">
@@ -44,9 +45,13 @@ export default async function BozorPage({
                 <div className="w-full lg:w-3/4 min-w-0">
                     {/* Header */}
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-3 sm:gap-4">
-                        <h1 className="text-xl sm:text-2xl font-bold text-slate-900">
-                            Barcha e&apos;lonlar <span className="text-slate-500 text-base sm:text-lg font-normal">({pagination.total})</span>
-                        </h1>
+                        <div className="flex items-center gap-3">
+                            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-slate-100">
+                                Barcha e&apos;lonlar <span className="text-slate-500 text-base sm:text-lg font-normal">({pagination.total})</span>
+                            </h1>
+                            {/* Mobile filter button */}
+                            <BozorMobileFilters />
+                        </div>
 
                         <div className="flex items-center gap-2 w-full sm:w-auto">
                             <Suspense fallback={<div className="w-48 h-9 bg-slate-100 rounded-lg animate-pulse" />}>

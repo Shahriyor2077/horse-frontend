@@ -61,7 +61,7 @@ export function Footer() {
                         <h3 className="text-white font-semibold mb-3 text-sm">Aloqa</h3>
                         <div className="flex flex-col gap-2">
                             <a
-                                href="https://t.me/otbozor_bot"
+                                href={`https://t.me/${process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME || 'inbook_ru_bot'}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="flex items-center gap-2 text-sm hover:text-primary-400 transition-colors"

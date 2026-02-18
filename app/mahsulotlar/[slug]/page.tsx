@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ShoppingCart, Check, ShieldCheck, Truck, Loader2, ArrowLeft } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { ShoppingCart, Check, ShieldCheck, Truck, Loader2, ArrowLeft, Share2, Heart } from 'lucide-react';
 
 interface Product {
     id: string;
@@ -28,10 +29,13 @@ interface Product {
 }
 
 export default function ProductDetailPage({ params }: { params: { slug: string } }) {
+    const router = useRouter();
     const [product, setProduct] = useState<Product | null>(null);
     const [loading, setLoading] = useState(true);
     const [selectedImage, setSelectedImage] = useState(0);
     const [addedToCart, setAddedToCart] = useState(false);
+    const [saved, setSaved] = useState(false);
+    const [shareCopied, setShareCopied] = useState(false);
 
     const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
@@ -50,6 +54,17 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
             console.error('Mahsulotni yuklashda xatolik:', error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleShare = async () => {
+        const url = window.location.href;
+        if (navigator.share) {
+            try { await navigator.share({ title: product?.title, url }); } catch {}
+        } else {
+            await navigator.clipboard.writeText(url).catch(() => {});
+            setShareCopied(true);
+            setTimeout(() => setShareCopied(false), 2000);
         }
     };
 
@@ -87,15 +102,25 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
 
     return (
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            {/* Breadcrumb */}
-            <div className="mb-6">
-                <Link
-                    href="/mahsulotlar"
-                    className="inline-flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors"
+            {/* Top bar: Back | Share */}
+            <div className="flex items-center justify-between mb-6">
+                <button
+                    onClick={() => router.back()}
+                    className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors shadow-sm"
                 >
                     <ArrowLeft className="w-4 h-4" />
-                    Mahsulotlarga qaytish
-                </Link>
+                    Orqaga
+                </button>
+                <button
+                    onClick={handleShare}
+                    className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors shadow-sm"
+                >
+                    {shareCopied ? (
+                        <><Check className="w-4 h-4 text-green-500" /> Nusxalandi</>
+                    ) : (
+                        <><Share2 className="w-4 h-4" /> Ulashish</>
+                    )}
+                </button>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
@@ -147,8 +172,23 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
                                 {product.category.name}
                             </span>
                         )}
-                        <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mt-3 mb-2">{product.title}</h1>
-                        <p className="text-3xl font-bold text-slate-900 dark:text-slate-100">
+                        <div className="flex items-start justify-between gap-3 mt-3 mb-2">
+                            <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-slate-100 leading-tight">
+                                {product.title}
+                            </h1>
+                            <button
+                                onClick={() => setSaved(v => !v)}
+                                className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-xl border text-sm font-medium transition-colors mt-1 ${
+                                    saved
+                                        ? 'bg-red-50 dark:bg-red-900/20 border-red-300 dark:border-red-700 text-red-500 dark:text-red-400'
+                                        : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-400 hover:border-red-300 hover:text-red-500'
+                                }`}
+                            >
+                                <Heart className={`w-4 h-4 ${saved ? 'fill-current' : ''}`} />
+                                {saved ? 'Saqlangan' : 'Saqlash'}
+                            </button>
+                        </div>
+                        <p className="text-2xl sm:text-3xl font-bold text-primary-600 dark:text-primary-400">
                             {formatPrice(Number(product.priceAmount), product.priceCurrency)}
                         </p>
                         <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">

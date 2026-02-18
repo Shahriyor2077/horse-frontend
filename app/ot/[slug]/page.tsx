@@ -1,8 +1,10 @@
 import { getListing, getSimilarListings } from '@/lib/api';
-import { formatPrice, formatDate, getPurposeLabel, getGenderLabel } from '@/lib/utils';
+import { formatPrice, formatDateTime, getPurposeLabel, getGenderLabel } from '@/lib/utils';
 import { ListingGallery } from '@/components/listing/ListingGallery';
 import { ListingCard } from '@/components/listing/ListingCard';
 import { ListingInteractions } from '@/components/listing/ListingInteractions';
+import { ListingDetailActions } from '@/components/listing/ListingDetailActions';
+import { FavoriteButton } from '@/components/listing/FavoriteButton';
 import { MapPin, Shield, Calendar, Eye } from 'lucide-react';
 import { notFound } from 'next/navigation';
 
@@ -43,27 +45,56 @@ export default async function ListingDetailPage({ params }: { params: { slug: st
         notFound();
     }
 
+    const dateStr = listing.publishedAt || listing.createdAt;
+
     return (
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+
+            {/* Top bar: Back ← | → Share */}
+            <ListingDetailActions title={listing.title} />
+
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
 
-                {/* Left Column: Gallery & Description */}
+                {/* Left Column: Gallery & Info */}
                 <div className="lg:col-span-2 space-y-6 sm:space-y-8">
                     <ListingGallery media={listing.media} title={listing.title} />
 
                     <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 sm:p-6 shadow-sm border border-slate-200 dark:border-slate-700">
-                        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2">
-                            {listing.title}
-                        </h1>
-                        <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-sm sm:text-base text-slate-500 dark:text-slate-400 mb-4 sm:mb-6">
+
+                        {/* Title + Save */}
+                        <div className="flex items-start justify-between gap-3 mb-3">
+                            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-slate-900 dark:text-slate-100 leading-tight">
+                                {listing.title}
+                            </h1>
+                            <div className="flex-shrink-0 mt-1">
+                                <FavoriteButton listingId={listing.id} variant="outline" />
+                            </div>
+                        </div>
+
+                        {/* Price — right after title */}
+                        <div className="mb-4">
+                            <p className="text-2xl sm:text-3xl font-bold text-primary-600 dark:text-primary-400">
+                                {formatPrice(listing.priceAmount, listing.priceCurrency)}
+                            </p>
+                            {listing.priceCurrency === 'USD' && (
+                                <p className="text-sm text-slate-400 dark:text-slate-500 mt-0.5">
+                                    Taxminan {formatPrice(listing.priceAmount * 12400)}
+                                </p>
+                            )}
+                        </div>
+
+                        {/* Meta: location, date+time, views */}
+                        <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-sm text-slate-500 dark:text-slate-400 mb-6">
                             <span className="flex items-center gap-1">
                                 <MapPin className="w-4 h-4" />
                                 {listing.region.nameUz}{listing.district?.nameUz ? `, ${listing.district.nameUz}` : ''}
                             </span>
-                            <span className="flex items-center gap-1">
-                                <Calendar className="w-4 h-4" />
-                                {formatDate(listing.publishedAt || '')}
-                            </span>
+                            {dateStr && (
+                                <span className="flex items-center gap-1">
+                                    <Calendar className="w-4 h-4" />
+                                    {formatDateTime(dateStr)}
+                                </span>
+                            )}
                             {listing.viewCount > 0 && (
                                 <span className="flex items-center gap-1">
                                     <Eye className="w-4 h-4" />
@@ -114,17 +145,9 @@ export default async function ListingDetailPage({ params }: { params: { slug: st
                     </div>
                 </div>
 
-                {/* Right Column: Price & Seller */}
+                {/* Right Column: Seller & Contact */}
                 <div className="space-y-6">
                     <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-200 dark:border-slate-700 sticky top-24">
-                        <div className="text-3xl font-bold text-primary-600 dark:text-primary-400 mb-1">
-                            {formatPrice(listing.priceAmount, listing.priceCurrency)}
-                        </div>
-                        {listing.priceCurrency === 'USD' && (
-                            <p className="text-sm text-slate-400 dark:text-slate-500 mb-6">
-                                Taxminan {formatPrice(listing.priceAmount * 12400)}
-                            </p>
-                        )}
 
                         {/* Seller Info */}
                         <div className="bg-slate-50 dark:bg-slate-700/50 rounded-xl p-4 border border-slate-100 dark:border-slate-600 mb-6">
@@ -149,7 +172,6 @@ export default async function ListingDetailPage({ params }: { params: { slug: st
                         </div>
 
                         <ListingInteractions
-                            listingId={listing.id}
                             telegramUsername={listing.user.telegramUsername || ''}
                             phone={listing.user.phone}
                         />

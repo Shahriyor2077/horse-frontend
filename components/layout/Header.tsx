@@ -10,8 +10,8 @@ import { createPortal } from 'react-dom';
 
 const navigation = [
     { name: 'Bozor', href: '/bozor' },
-    { name: "Ko'pkari", href: '/kopkari' },
     { name: 'Mahsulotlar', href: '/mahsulotlar' },
+    { name: "Ko'pkari", href: '/kopkari' },
     { name: 'Blog', href: '/blog' },
     { name: 'Aloqa', href: '/aloqa' },
 ];
@@ -118,6 +118,7 @@ export function Header() {
 
                         <hr className="my-4 border-slate-200 dark:border-slate-700" />
 
+                        {/* Dark/Light mode toggle — hozircha yopiq
                         <div className="flex items-center justify-between px-4 py-3">
                             <span className="text-sm text-slate-500 dark:text-slate-400">Mavzu</span>
                             <button
@@ -127,6 +128,7 @@ export function Header() {
                                 {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
                             </button>
                         </div>
+                        */}
 
                         <button
                             onClick={() => { setMobileMenuOpen(false); logout(); }}
@@ -146,6 +148,18 @@ export function Header() {
                                 {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
                             </button>
                         </div>
+
+                        {/* Dark/Light mode toggle — hozircha yopiq
+                        <div className="flex items-center justify-between px-4 py-3">
+                            <span className="text-sm text-slate-500 dark:text-slate-400">Mavzu</span>
+                            <button
+                                onClick={toggleTheme}
+                                className="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300"
+                            >
+                                {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+                            </button>
+                        </div>
+                        */}
 
                         <Link href="/login" onClick={() => setMobileMenuOpen(false)} className="flex items-center justify-center gap-2 w-full py-3 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-xl font-medium text-base">
                             <User className="w-5 h-5" /> Kirish
@@ -192,6 +206,7 @@ export function Header() {
 
                         {/* Desktop actions */}
                         <div className="hidden lg:flex items-center gap-2">
+                            {/* Dark/Light mode toggle — hozircha yopiq
                             <button
                                 onClick={toggleTheme}
                                 className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400"
@@ -199,6 +214,7 @@ export function Header() {
                             >
                                 {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
                             </button>
+                            */}
 
                             {isAuthenticated ? (
                                 <>

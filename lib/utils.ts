@@ -17,6 +17,20 @@ export function formatDate(dateStr: string): string {
     });
 }
 
+export function formatDateTime(dateStr: string): string {
+    const date = new Date(dateStr);
+    const datePart = date.toLocaleDateString('uz-UZ', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+    });
+    const timePart = date.toLocaleTimeString('uz-UZ', {
+        hour: '2-digit',
+        minute: '2-digit',
+    });
+    return `${datePart}, ${timePart}`;
+}
+
 export function formatRelativeTime(dateStr: string): string {
     const date = new Date(dateStr);
     const now = new Date();

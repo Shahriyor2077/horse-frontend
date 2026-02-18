@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import NextTopLoader from 'nextjs-toploader';
 import { ThemeProvider } from '@/components/providers/ThemeProvider';
 import { AuthProvider } from '@/components/providers/AuthProvider';
 import { LayoutWrapper } from '@/components/layout/LayoutWrapper';
@@ -52,6 +53,13 @@ export default function RootLayout({
     return (
         <html lang="uz">
             <body className="min-h-screen">
+                <NextTopLoader
+                    color="#f59e0b"
+                    height={3}
+                    showSpinner={false}
+                    easing="ease"
+                    speed={200}
+                />
                 <ThemeProvider>
                     <AuthProvider>
                         <LayoutWrapper>{children}</LayoutWrapper>
