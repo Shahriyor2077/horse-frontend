@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react';
 import { AdminLayout } from '@/components/layout/AdminLayout';
 import { CustomSelect } from '@/components/ui/CustomSelect';
-import { Save, Loader2, TrendingUp, Package, List, CheckCircle, Clock, XCircle } from 'lucide-react';
-import { getFinanceSettings, updateProductPrice, getAdminPayments } from '@/lib/admin-api';
+import { Save, Loader2, TrendingUp, Package, List, CheckCircle, Clock, XCircle, Zap, Rocket, Crown, RefreshCw } from 'lucide-react';
+import { getFinanceSettings, updateFinanceSettings, getAdminPayments, FinanceSettings } from '@/lib/admin-api';
 
 export const dynamic = 'force-dynamic';
 
@@ -15,8 +15,20 @@ const STATUS_LABELS: Record<string, { label: string; color: string }> = {
     FAILED: { label: 'Xato', color: 'bg-red-100 text-red-700' },
 };
 
+const PACKAGE_META = [
+    { key: 'OSON_START', label: 'Oson start', days: '3 kun', Icon: Zap, color: 'text-blue-600', bg: 'bg-blue-50' },
+    { key: 'TEZKOR_SAVDO', label: 'Tezkor savdo', days: '7 kun', Icon: Rocket, color: 'text-primary-600', bg: 'bg-primary-50' },
+    { key: 'TURBO_SAVDO', label: 'Premium', days: '30 kun', Icon: Crown, color: 'text-amber-600', bg: 'bg-amber-50' },
+] as const;
+
 export default function AdminMoliyaPage() {
-    const [price, setPrice] = useState('');
+    const [productPrice, setProductPrice] = useState('');
+    const [reactivationPrice, setReactivationPrice] = useState('');
+    const [pkgPrices, setPkgPrices] = useState<Record<string, { price: string; discount: string }>>({
+        OSON_START: { price: '', discount: '' },
+        TEZKOR_SAVDO: { price: '', discount: '' },
+        TURBO_SAVDO: { price: '', discount: '' },
+    });
     const [isLoadingSettings, setIsLoadingSettings] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
     const [settingsError, setSettingsError] = useState('');
@@ -33,8 +45,19 @@ export default function AdminMoliyaPage() {
 
     useEffect(() => {
         getFinanceSettings()
-            .then(res => { if (res.success && res.data) setPrice(String(res.data.productListingPrice)); })
-            .catch(() => setPrice('35000'))
+            .then(res => {
+                if (res.success && res.data) {
+                    setProductPrice(String(res.data.productListingPrice));
+                    setReactivationPrice(String(res.data.reactivationPrice));
+                    const lp = res.data.listingPackages;
+                    setPkgPrices({
+                        OSON_START: { price: String(lp.OSON_START.price), discount: lp.OSON_START.discountPrice ? String(lp.OSON_START.discountPrice) : '' },
+                        TEZKOR_SAVDO: { price: String(lp.TEZKOR_SAVDO.price), discount: lp.TEZKOR_SAVDO.discountPrice ? String(lp.TEZKOR_SAVDO.discountPrice) : '' },
+                        TURBO_SAVDO: { price: String(lp.TURBO_SAVDO.price), discount: lp.TURBO_SAVDO.discountPrice ? String(lp.TURBO_SAVDO.discountPrice) : '' },
+                    });
+                }
+            })
+            .catch(() => {})
             .finally(() => setIsLoadingSettings(false));
     }, []);
 
@@ -56,12 +79,26 @@ export default function AdminMoliyaPage() {
         e.preventDefault();
         setSettingsError('');
         setSettingsSuccess('');
-        const num = Number(price);
-        if (!num || num <= 0) { setSettingsError('To\'g\'ri narx kiriting'); return; }
         setIsSaving(true);
         try {
-            const res = await updateProductPrice(num);
-            if (res.success) setSettingsSuccess('Narx muvaffaqiyatli yangilandi!');
+            const listingPackages: any = {};
+            for (const pkg of PACKAGE_META) {
+                const p = pkgPrices[pkg.key];
+                const price = Number(p.price);
+                const discount = p.discount ? Number(p.discount) : null;
+                if (discount !== null && discount >= price) {
+                    setSettingsError(`${pkg.label}: chegirma narxi asl narxdan kichik bo'lishi kerak`);
+                    setIsSaving(false);
+                    return;
+                }
+                listingPackages[pkg.key] = { price, discountPrice: discount };
+            }
+            const res = await updateFinanceSettings({
+                productListingPrice: Number(productPrice),
+                reactivationPrice: Number(reactivationPrice),
+                listingPackages,
+            });
+            if (res.success) setSettingsSuccess('Narxlar muvaffaqiyatli yangilandi!');
             else setSettingsError(res.message || 'Xatolik');
         } catch (err: any) {
             setSettingsError(err.message || 'Xatolik');
@@ -77,7 +114,7 @@ export default function AdminMoliyaPage() {
                 <p className="text-slate-500">To'lovlar va narx sozlamalari</p>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
                 {/* Total Revenue */}
                 <div className="bg-white rounded-xl border border-slate-200 p-5 flex items-center gap-4">
                     <div className="p-3 bg-green-100 rounded-xl">
@@ -98,35 +135,124 @@ export default function AdminMoliyaPage() {
                         <p className="text-xl font-bold text-slate-900">{total}</p>
                     </div>
                 </div>
-                {/* Price setting */}
-                <form onSubmit={handleSave} className="bg-white rounded-xl border border-slate-200 p-5">
-                    <p className="text-sm text-slate-500 mb-2">Mahsulot joylash narxi</p>
-                    {settingsSuccess && <p className="text-xs text-green-600 mb-2">{settingsSuccess}</p>}
-                    {settingsError && <p className="text-xs text-red-600 mb-2">{settingsError}</p>}
-                    <div className="flex gap-2">
-                        {isLoadingSettings ? (
-                            <Loader2 className="w-5 h-5 animate-spin text-slate-400" />
-                        ) : (
-                            <>
-                                <input
-                                    type="number"
-                                    value={price}
-                                    onChange={e => setPrice(e.target.value)}
-                                    min="1000"
-                                    step="1000"
-                                    className="flex-1 px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                                    placeholder="35000"
-                                    disabled={isSaving}
-                                />
-                                <button type="submit" disabled={isSaving} className="px-3 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg text-sm disabled:opacity-50">
-                                    {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                                </button>
-                            </>
-                        )}
-                    </div>
-                    <p className="text-xs text-slate-400 mt-1">so'm</p>
-                </form>
             </div>
+
+            {/* Pricing Settings */}
+            <form onSubmit={handleSave} className="bg-white rounded-xl border border-slate-200 p-6 mb-8">
+                <div className="flex items-center justify-between mb-6">
+                    <div>
+                        <h2 className="text-base font-semibold text-slate-900">Narx sozlamalari</h2>
+                        <p className="text-sm text-slate-500">Chegirma narxi kiritilsa, asl narx ustiga chiziladi</p>
+                    </div>
+                    {settingsSuccess && <p className="text-sm text-green-600 font-medium">{settingsSuccess}</p>}
+                    {settingsError && <p className="text-sm text-red-600">{settingsError}</p>}
+                </div>
+
+                {isLoadingSettings ? (
+                    <div className="flex justify-center py-8"><Loader2 className="w-6 h-6 animate-spin text-slate-400" /></div>
+                ) : (
+                    <div className="space-y-6">
+                        {/* Fixed prices row */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            {/* Product price */}
+                            <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-xl">
+                                <div className="p-2.5 bg-white rounded-lg border border-slate-200">
+                                    <Package className="w-5 h-5 text-slate-600" />
+                                </div>
+                                <div className="flex-1">
+                                    <p className="text-sm font-medium text-slate-900 mb-1">Mahsulot joylash narxi</p>
+                                    <div className="flex items-center gap-2">
+                                        <input
+                                            type="number"
+                                            value={productPrice}
+                                            onChange={e => setProductPrice(e.target.value)}
+                                            min="1000" step="1000"
+                                            className="w-36 px-3 py-1.5 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                                            placeholder="35000"
+                                        />
+                                        <span className="text-sm text-slate-400">so'm</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Reactivation price */}
+                            <div className="flex items-center gap-4 p-4 bg-amber-50 rounded-xl">
+                                <div className="p-2.5 bg-white rounded-lg border border-slate-200">
+                                    <RefreshCw className="w-5 h-5 text-amber-600" />
+                                </div>
+                                <div className="flex-1">
+                                    <p className="text-sm font-medium text-slate-900 mb-0.5">Muddati tugagan e'lonni faollashtirish narxi</p>
+                                    <p className="text-xs text-slate-400 mb-1">E'lon EXPIRED → to'lov → KUTILAYOTGAN</p>
+                                    <div className="flex items-center gap-2">
+                                        <input
+                                            type="number"
+                                            value={reactivationPrice}
+                                            onChange={e => setReactivationPrice(e.target.value)}
+                                            min="1000" step="1000"
+                                            className="w-36 px-3 py-1.5 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                                            placeholder="50000"
+                                        />
+                                        <span className="text-sm text-slate-400">so'm</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Listing packages */}
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            {PACKAGE_META.map(({ key, label, days, Icon, color, bg }) => {
+                                const p = pkgPrices[key];
+                                return (
+                                    <div key={key} className={`p-4 ${bg} rounded-xl border border-slate-200`}>
+                                        <div className="flex items-center gap-2 mb-3">
+                                            <Icon className={`w-4 h-4 ${color}`} />
+                                            <p className="text-sm font-semibold text-slate-900">{label}</p>
+                                            <span className="text-xs text-slate-400">{days}</span>
+                                        </div>
+                                        <div className="space-y-2">
+                                            <div>
+                                                <label className="text-xs text-slate-500 mb-1 block">Asl narx (so'm)</label>
+                                                <input
+                                                    type="number"
+                                                    value={p.price}
+                                                    onChange={e => setPkgPrices(prev => ({ ...prev, [key]: { ...prev[key], price: e.target.value } }))}
+                                                    min="1000" step="100"
+                                                    className="w-full px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="text-xs text-slate-500 mb-1 block">Chegirma narxi (ixtiyoriy)</label>
+                                                <input
+                                                    type="number"
+                                                    value={p.discount}
+                                                    onChange={e => setPkgPrices(prev => ({ ...prev, [key]: { ...prev[key], discount: e.target.value } }))}
+                                                    min="0" step="100"
+                                                    placeholder="bo'sh = chegirma yo'q"
+                                                    className="w-full px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent placeholder:text-slate-300"
+                                                />
+                                            </div>
+                                            {p.discount && Number(p.discount) > 0 && Number(p.discount) < Number(p.price) && (
+                                                <p className="text-xs text-green-600">
+                                                    <span className="line-through text-slate-400">{Number(p.price).toLocaleString('uz-UZ')}</span>
+                                                    {' → '}
+                                                    <strong>{Number(p.discount).toLocaleString('uz-UZ')} so'm</strong>
+                                                </p>
+                                            )}
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+                )}
+
+                <div className="mt-6 flex justify-end">
+                    <button type="submit" disabled={isSaving || isLoadingSettings} className="flex items-center gap-2 px-5 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg text-sm font-medium disabled:opacity-50">
+                        {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                        Saqlash
+                    </button>
+                </div>
+            </form>
 
             {/* Filters */}
             <div className="flex gap-3 mb-4 flex-wrap">

@@ -120,15 +120,41 @@ export async function deleteAdminEvent(id: string): Promise<AuthResponse<any>> {
 }
 
 // Finance Settings
-export async function getFinanceSettings(): Promise<AuthResponse<{ productListingPrice: number }>> {
+export interface ListingPackageSetting {
+    price: number;
+    discountPrice: number | null;
+}
+export interface FinanceSettings {
+    productListingPrice: number;
+    reactivationPrice: number;
+    listingPackages: {
+        OSON_START: ListingPackageSetting;
+        TEZKOR_SAVDO: ListingPackageSetting;
+        TURBO_SAVDO: ListingPackageSetting;
+    };
+}
+
+export async function getFinanceSettings(): Promise<AuthResponse<FinanceSettings>> {
     return apiFetch('/api/admin/finance/settings');
 }
 
-export async function updateProductPrice(productListingPrice: number): Promise<AuthResponse<{ productListingPrice: number }>> {
+export async function updateFinanceSettings(body: {
+    productListingPrice?: number;
+    reactivationPrice?: number;
+    listingPackages?: {
+        OSON_START?: { price?: number; discountPrice?: number | null };
+        TEZKOR_SAVDO?: { price?: number; discountPrice?: number | null };
+        TURBO_SAVDO?: { price?: number; discountPrice?: number | null };
+    };
+}): Promise<AuthResponse<any>> {
     return apiFetch('/api/admin/finance/settings', {
         method: 'PUT',
-        body: JSON.stringify({ productListingPrice }),
+        body: JSON.stringify(body),
     });
+}
+
+export async function updateProductPrice(productListingPrice: number): Promise<AuthResponse<any>> {
+    return updateFinanceSettings({ productListingPrice });
 }
 
 export async function getAdminPayments(options?: {

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, Suspense } from 'react';
-import { useParams, useSearchParams } from 'next/navigation';
+import { useParams, useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { CheckCircle, XCircle, Clock, Loader2, ArrowLeft } from 'lucide-react';
 import { getProductPaymentStatus } from '@/lib/api';
@@ -9,12 +9,14 @@ import { getProductPaymentStatus } from '@/lib/api';
 function ProductPaymentResultContent() {
     const params = useParams();
     const searchParams = useSearchParams();
+    const router = useRouter();
     const productId = params.id as string;
     const paymentId = searchParams.get('paymentId');
 
     const [status, setStatus] = useState<'loading' | 'completed' | 'pending' | 'failed'>('loading');
     const [payment, setPayment] = useState<any>(null);
     const [error, setError] = useState('');
+    const [countdown, setCountdown] = useState(3);
 
     useEffect(() => {
         if (!paymentId) {
@@ -55,6 +57,23 @@ function ProductPaymentResultContent() {
         return () => clearInterval(interval);
     }, [paymentId]);
 
+    // Auto-redirect to elonlarim after payment completes
+    useEffect(() => {
+        if (status !== 'completed') return;
+        setCountdown(3);
+        const timer = setInterval(() => {
+            setCountdown((prev) => {
+                if (prev <= 1) {
+                    clearInterval(timer);
+                    router.push('/profil/elonlarim');
+                    return 0;
+                }
+                return prev - 1;
+            });
+        }, 1000);
+        return () => clearInterval(timer);
+    }, [status, router]);
+
     if (status === 'loading') {
         return (
             <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex items-center justify-center">
@@ -78,8 +97,11 @@ function ProductPaymentResultContent() {
                         <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-2">
                             To&apos;lov muvaffaqiyatli!
                         </h1>
-                        <p className="text-slate-500 dark:text-slate-400 mb-6">
+                        <p className="text-slate-500 dark:text-slate-400 mb-2">
                             Mahsulotingiz platformada chop etildi.
+                        </p>
+                        <p className="text-sm text-slate-400 dark:text-slate-500 mb-6">
+                            {countdown} soniyadan so'ng e'lonlarimga o'tiladi...
                         </p>
                         {payment && (
                             <div className="bg-slate-50 dark:bg-slate-700/50 rounded-xl p-4 mb-6 text-left">
@@ -93,16 +115,16 @@ function ProductPaymentResultContent() {
                         )}
                         <div className="flex flex-col gap-3">
                             <Link
-                                href="/mahsulotlar"
+                                href="/profil/elonlarim"
                                 className="w-full py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-medium transition-colors"
                             >
-                                Mahsulotlarni ko&apos;rish
+                                E&apos;lonlarimga o&apos;tish
                             </Link>
                             <Link
-                                href="/profil/elonlarim"
+                                href="/mahsulotlar"
                                 className="w-full py-3 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl font-medium"
                             >
-                                Profilga qaytish
+                                Mahsulotlarni ko&apos;rish
                             </Link>
                         </div>
                     </div>

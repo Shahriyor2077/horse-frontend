@@ -5,6 +5,7 @@ import { ListingCard } from '@/components/listing/ListingCard';
 import { ListingInteractions } from '@/components/listing/ListingInteractions';
 import { ListingDetailActions } from '@/components/listing/ListingDetailActions';
 import { FavoriteButton } from '@/components/listing/FavoriteButton';
+import { ViewTracker } from '@/components/listing/ViewTracker';
 import { MapPin, Shield, Calendar, Eye } from 'lucide-react';
 import { notFound } from 'next/navigation';
 
@@ -49,6 +50,9 @@ export default async function ListingDetailPage({ params }: { params: { slug: st
 
     return (
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+
+            {/* Track view from browser (deduplication works correctly) */}
+            <ViewTracker listingId={listing.id} />
 
             {/* Top bar: Back ← | → Share */}
             <ListingDetailActions title={listing.title} />

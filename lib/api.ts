@@ -490,6 +490,23 @@ export async function logout(): Promise<AuthResponse<null>> {
 }
 
 // Payments
+export async function getReactivationPrice(): Promise<number> {
+    const response = await apiFetch<AuthResponse<{ amount: number }>>('/api/payments/reactivation-price');
+    if (response.success && response.data) return response.data.amount;
+    return 50000;
+}
+
+export async function createReactivationInvoice(
+    listingId: string,
+): Promise<{ paymentId: string; amount: number; clickUrl: string }> {
+    const response = await apiFetch<AuthResponse<{ paymentId: string; amount: number; clickUrl: string }>>(
+        '/api/payments/create-reactivation-invoice',
+        { method: 'POST', body: JSON.stringify({ listingId }) },
+    );
+    if (response.success && response.data) return response.data;
+    throw new Error(response.message || 'Failed to create reactivation invoice');
+}
+
 export async function createPaymentInvoice(
     listingId: string,
     packageType: 'OSON_START' | 'TEZKOR_SAVDO' | 'TURBO_SAVDO',

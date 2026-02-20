@@ -1,6 +1,6 @@
 import { formatDate, formatPrice } from '@/lib/utils';
 import { KopkariEvent } from '@/lib/api';
-import { MapPin, Calendar, Trophy, ChevronRight } from 'lucide-react';
+import { MapPin, Calendar, Trophy, ChevronRight, Plus } from 'lucide-react';
 import { GiHorseshoe } from 'react-icons/gi';
 import Link from 'next/link';
 import { KopkariFilters } from './KopkariFilters';
@@ -57,9 +57,22 @@ export default async function KopkariPage({
             {/* Hero */}
             <div className="bg-gradient-to-br from-amber-600 to-orange-700 text-white py-12">
                 <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-                    <h1 className="text-3xl md:text-4xl font-bold mb-2">Ko'pkari Taqvimi</h1>
-                    <p className="text-amber-100 text-lg">Yaqinlashib kelayotgan ot choptirish musobaqalari</p>
-                    <p className="text-amber-200 text-sm mt-1">{events.length} ta tadbir</p>
+                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                        <div>
+                            <h1 className="text-3xl md:text-4xl font-bold mb-2">Ko'pkari Taqvimi</h1>
+                            <p className="text-amber-100 text-lg">Yaqinlashib kelayotgan ot choptirish musobaqalari</p>
+                            <p className="text-amber-200 text-sm mt-1">{events.length} ta tadbir</p>
+                        </div>
+                        <a
+                            href="https://t.me/doniyorjon_k"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-2 self-start bg-white text-amber-700 font-semibold px-5 py-2.5 rounded-xl shadow-lg hover:bg-amber-50 transition-colors whitespace-nowrap"
+                        >
+                            <Plus className="w-4 h-4" />
+                            Ko&apos;pkari e&apos;loni joylash
+                        </a>
+                    </div>
                 </div>
             </div>
 

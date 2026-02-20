@@ -149,42 +149,39 @@ function LoginContent() {
 
         {/* Title */}
         <h1 className="text-2xl font-bold text-center text-slate-900 dark:text-white mb-2">
-          Kodni Kiriting
+          Kirish
         </h1>
 
         {/* Description */}
-        <p className="text-center text-slate-500 dark:text-slate-400 text-sm mb-8">
+        <p className="text-center text-slate-500 dark:text-slate-400 text-sm mb-6">
+          Telegram bot orqali bir martalik kod oling va quyida kiriting
+        </p>
+
+        {/* Get password button */}
+        <a
+          href={botLink || `https://t.me/${botUsername}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={`w-full h-12 flex items-center justify-center gap-2.5 rounded-xl font-semibold text-sm transition-all mb-8 ${
+            initLoading
+              ? "bg-slate-100 dark:bg-slate-800 text-slate-400 cursor-wait pointer-events-none"
+              : "bg-[#2AABEE] hover:bg-[#229ED9] text-white"
+          }`}
+        >
           {initLoading ? (
-            <span className="inline-flex items-center gap-1.5">
-              <Loader2 className="w-3.5 h-3.5 animate-spin" />
-              Tayyorlanmoqda...
-            </span>
-          ) : botLink ? (
             <>
-              <a
-                href={botLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-slate-900 dark:text-white font-semibold hover:underline"
-              >
-                @{botUsername}
-              </a>
-              {"  "}telegram botiga kiring va 1 daqiqalik kodingizni oling.
+              <Loader2 className="w-4 h-4 animate-spin" />
+              Tayyorlanmoqda...
             </>
           ) : (
             <>
-              <a
-                href={`https://t.me/${botUsername}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-slate-900 dark:text-white font-semibold hover:underline"
-              >
-                @{botUsername}
-              </a>
-              {"  "}telegram botiga kiring va 1 daqiqalik kodingizni oling.
+              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L7.26 13.605l-2.979-.929c-.648-.203-.66-.648.136-.961l11.647-4.49c.538-.194 1.01.131.83.996z"/>
+              </svg>
+              Parol olish
             </>
           )}
-        </p>
+        </a>
 
         {error && (
           <div className="mb-6 p-3 bg-red-50 dark:bg-red-900/20 rounded-xl">
@@ -193,6 +190,10 @@ function LoginContent() {
             </p>
           </div>
         )}
+
+        <p className="text-center text-xs text-slate-400 dark:text-slate-500 mb-3">
+          Botdan olgan kodni kiriting
+        </p>
 
         {/* Code Inputs - always single row */}
         <div className="flex gap-1.5 sm:gap-2 justify-center mb-10">

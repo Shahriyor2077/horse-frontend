@@ -8,9 +8,10 @@ import {
     Plus, Edit, Eye, ChevronLeft, ChevronRight, Package,
     CheckCircle, Clock, CreditCard, XCircle, Archive,
     TimerOff, RefreshCw, MoreVertical, Share2, Heart,
-    Megaphone, X, Trash2,
+    Megaphone, X, Trash2, Loader2,
 } from 'lucide-react';
 import { RequireAuth } from '@/components/auth/RequireAuth';
+import { getReactivationPrice } from '@/lib/api';
 
 interface Listing {
     id: string;
@@ -20,10 +21,12 @@ interface Listing {
     priceCurrency: string;
     status: 'DRAFT' | 'PENDING' | 'APPROVED' | 'REJECTED' | 'ARCHIVED' | 'EXPIRED';
     isPaid: boolean;
+    isTop: boolean;
     viewCount: number;
     favoriteCount: number;
     createdAt: string;
     expiresAt?: string;
+    boostExpiresAt?: string;
     publishedAt?: string;
     region: { nameUz: string };
     media: Array<{ url: string; thumbUrl?: string }>;
@@ -47,9 +50,9 @@ type StatusFilter = 'active' | 'pending' | 'unpaid' | 'inactive' | 'rejected' | 
 
 const STATUS_TABS: { key: StatusFilter; label: string; icon: any }[] = [
     { key: 'active', label: 'Faol', icon: CheckCircle },
-    { key: 'pending', label: 'Kutish', icon: Clock },
+    { key: 'pending', label: 'Kutayotgan', icon: Clock },
     { key: 'unpaid', label: "To'lanmagan", icon: CreditCard },
-    { key: 'inactive', label: 'Faol emas', icon: Archive },
+    { key: 'inactive', label: 'Nofaol', icon: Archive },
     { key: 'rejected', label: 'Rad etilgan', icon: XCircle },
     { key: 'expired', label: 'Muddati tugagan', icon: TimerOff },
 ];
@@ -58,24 +61,24 @@ const ITEMS_PER_PAGE = 12;
 
 function filterListings(listings: Listing[], filter: StatusFilter): Listing[] {
     switch (filter) {
-        case 'active': return listings.filter(l => l.status === 'APPROVED');
-        case 'pending': return listings.filter(l => l.status === 'PENDING');
-        case 'unpaid': return listings.filter(l => !l.isPaid && (l.status === 'APPROVED' || l.status === 'DRAFT' || l.status === 'ARCHIVED'));
-        case 'inactive': return listings.filter(l => l.status === 'DRAFT' || l.status === 'ARCHIVED');
+        case 'active':   return listings.filter(l => l.status === 'APPROVED');
+        case 'pending':  return listings.filter(l => l.status === 'PENDING');
+        case 'unpaid':   return listings.filter(l => !l.isPaid && l.status === 'DRAFT');
+        case 'inactive': return listings.filter(l => l.status === 'ARCHIVED');
         case 'rejected': return listings.filter(l => l.status === 'REJECTED');
-        case 'expired': return listings.filter(l => l.status === 'EXPIRED');
+        case 'expired':  return listings.filter(l => l.status === 'EXPIRED');
         default: return listings;
     }
 }
 
 function getStatusCounts(listings: Listing[]) {
     return {
-        active: listings.filter(l => l.status === 'APPROVED').length,
-        pending: listings.filter(l => l.status === 'PENDING').length,
-        unpaid: listings.filter(l => !l.isPaid && (l.status === 'APPROVED' || l.status === 'DRAFT' || l.status === 'ARCHIVED')).length,
-        inactive: listings.filter(l => l.status === 'DRAFT' || l.status === 'ARCHIVED').length,
+        active:   listings.filter(l => l.status === 'APPROVED').length,
+        pending:  listings.filter(l => l.status === 'PENDING').length,
+        unpaid:   listings.filter(l => !l.isPaid && l.status === 'DRAFT').length,
+        inactive: listings.filter(l => l.status === 'ARCHIVED').length,
         rejected: listings.filter(l => l.status === 'REJECTED').length,
-        expired: listings.filter(l => l.status === 'EXPIRED').length,
+        expired:  listings.filter(l => l.status === 'EXPIRED').length,
     };
 }
 
@@ -95,6 +98,9 @@ function MyListingsPageContent() {
     const [openMenuId, setOpenMenuId] = useState<string | null>(null);
     const [showSuccessBanner, setShowSuccessBanner] = useState(false);
     const [deactivateListingId, setDeactivateListingId] = useState<string | null>(null);
+    const [reactivatingId, setReactivatingId] = useState<string | null>(null);
+    const [reactivationModal, setReactivationModal] = useState<{ listingId: string; price: number } | null>(null);
+    const [loadingPrice, setLoadingPrice] = useState(false);
 
     const filteredListings = useMemo(() => filterListings(listings, statusFilter), [listings, statusFilter]);
     const statusCounts = useMemo(() => getStatusCounts(listings), [listings]);
@@ -172,16 +178,54 @@ function MyListingsPageContent() {
         }
     };
 
-    const handleReactivate = async (listingId: string) => {
+    // EXPIRED uchun — narxni ko'rsatib, tasdiqlash so'rash
+    const handleReactivationPayment = async (listingId: string) => {
+        setLoadingPrice(true);
         try {
-            const res = await fetch(`${apiBase}/api/my/listings/${listingId}/reactivate`, {
+            const price = await getReactivationPrice();
+            setReactivationModal({ listingId, price });
+        } catch (e) {
+            console.error('Failed to fetch reactivation price:', e);
+        } finally {
+            setLoadingPrice(false);
+        }
+    };
+
+    // Modal tasdiqlangandan keyin to'lovga o'tish
+    const handleConfirmReactivation = async () => {
+        if (!reactivationModal) return;
+        const { listingId } = reactivationModal;
+        setReactivatingId(listingId);
+        setReactivationModal(null);
+        try {
+            const res = await fetch(`${apiBase}/api/payments/create-reactivation-invoice`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json', ...authHeaders() },
+                body: JSON.stringify({ listingId }),
+            });
+            const data = await res.json();
+            if (data.success && data.data?.clickUrl) {
+                window.location.href = data.data.clickUrl;
+            }
+        } catch (e) {
+            console.error('Failed to create reactivation invoice:', e);
+        } finally {
+            setReactivatingId(null);
+        }
+    };
+
+    // REJECTED uchun — /submit (qayta moderatsiyaga yuborish)
+    const handleResubmit = async (listingId: string) => {
+        try {
+            const res = await fetch(`${apiBase}/api/my/listings/${listingId}/submit`, {
                 method: 'POST',
                 credentials: 'include',
                 headers: authHeaders(),
             });
             if (res.ok) await fetchListings();
         } catch (e) {
-            console.error('Failed to reactivate:', e);
+            console.error('Failed to resubmit:', e);
         }
     };
 
@@ -196,6 +240,20 @@ function MyListingsPageContent() {
             await fetchListings();
         } catch (e) {
             console.error('Failed to deactivate:', e);
+        }
+    };
+
+    const handleDeleteListing = async (listingId: string) => {
+        if (!confirm("E'lonni o'chirishni xohlaysizmi? Bu amalni qaytarib bo'lmaydi.")) return;
+        try {
+            await fetch(`${apiBase}/api/my/listings/${listingId}/permanent`, {
+                method: 'DELETE',
+                credentials: 'include',
+                headers: authHeaders(),
+            });
+            await fetchListings();
+        } catch (e) {
+            console.error('Failed to delete listing:', e);
         }
     };
 
@@ -226,19 +284,19 @@ function MyListingsPageContent() {
     };
 
     const getListingStatusBadge = (listing: Listing) => {
-        if (listing.status === 'APPROVED' && listing.isPaid)
+        if (listing.status === 'APPROVED')
             return <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-green-500 text-white">Faol</span>;
-        if (listing.status === 'APPROVED' && !listing.isPaid)
+        if (listing.status === 'PENDING')
+            return <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-yellow-500 text-white">Kutayotgan</span>;
+        if (!listing.isPaid && listing.status === 'DRAFT')
             return <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-orange-500 text-white">To&apos;lanmagan</span>;
-        const c: Record<string, [string, string]> = {
-            DRAFT: ['bg-slate-600 text-white', 'Qoralama'],
-            PENDING: ['bg-yellow-500 text-white', 'Kutilmoqda'],
-            REJECTED: ['bg-red-500 text-white', 'Rad etilgan'],
-            ARCHIVED: ['bg-slate-500 text-white', 'Arxivlangan'],
-            EXPIRED: ['bg-amber-500 text-white', 'Muddati tugagan'],
-        };
-        const [style, label] = c[listing.status] || c.DRAFT;
-        return <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${style}`}>{label}</span>;
+        if (listing.status === 'ARCHIVED')
+            return <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-slate-500 text-white">Nofaol</span>;
+        if (listing.status === 'REJECTED')
+            return <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-red-500 text-white">Rad etilgan</span>;
+        if (listing.status === 'EXPIRED')
+            return <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-500 text-white">Muddati tugagan</span>;
+        return <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-slate-600 text-white">Qoralama</span>;
     };
 
     const getEmptyState = () => {
@@ -246,7 +304,7 @@ function MyListingsPageContent() {
             active: { Icon: CheckCircle, color: 'text-green-400', title: "Faol e'lonlar yo'q", desc: "Tasdiqlangan e'lonlaringiz bu yerda ko'rinadi" },
             pending: { Icon: Clock, color: 'text-yellow-400', title: "Kutilayotgan e'lonlar yo'q", desc: "Tekshiruvga yuborilgan e'lonlaringiz bu yerda ko'rinadi" },
             unpaid: { Icon: CreditCard, color: 'text-orange-400', title: "To'lanmagan e'lonlar yo'q", desc: "To'lov qilinmagan e'lonlar bu yerda ko'rinadi" },
-            inactive: { Icon: Archive, color: 'text-slate-400', title: "Faol bo'lmagan e'lonlar yo'q", desc: "Qoralama va arxivlangan e'lonlaringiz bu yerda ko'rinadi" },
+            inactive: { Icon: Archive, color: 'text-slate-400', title: "Nofaol e'lonlar yo'q", desc: "Yakunlangan e'lonlaringiz bu yerda ko'rinadi" },
             rejected: { Icon: XCircle, color: 'text-red-400', title: "Rad etilgan e'lonlar yo'q", desc: "Rad etilgan e'lonlaringiz bu yerda ko'rinadi" },
             expired: { Icon: TimerOff, color: 'text-amber-400', title: "Muddati tugagan e'lonlar yo'q", desc: "30 kunlik muddati tugagan e'lonlar bu yerda ko'rinadi" },
         };
@@ -429,11 +487,16 @@ function MyListingsPageContent() {
                                             {/* Dates */}
                                             <div className="flex items-center justify-between text-xs text-slate-400 dark:text-slate-500 mb-1.5">
                                                 <span>{formatDate(listing.createdAt)}</span>
-                                                {listing.expiresAt && (
+                                                {listing.boostExpiresAt ? (
+                                                    <span className="text-primary-500 dark:text-primary-400 flex items-center gap-0.5">
+                                                        <Megaphone className="w-3 h-3" />
+                                                        {formatDate(listing.boostExpiresAt)}
+                                                    </span>
+                                                ) : listing.expiresAt ? (
                                                     <span className="text-amber-500 dark:text-amber-400">
                                                         tugaydi: {formatDate(listing.expiresAt)}
                                                     </span>
-                                                )}
+                                                ) : null}
                                             </div>
 
                                             {/* Title */}
@@ -460,56 +523,136 @@ function MyListingsPageContent() {
 
                                             {/* Action buttons */}
                                             <div className="mt-auto space-y-2">
-                                                {/* Reklama qilish — always show for APPROVED paid */}
-                                                {listing.status === 'APPROVED' && listing.isPaid && (
-                                                    <Link
-                                                        href={`/elon/${listing.id}/tolov`}
-                                                        className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-primary-200 dark:border-primary-800 text-primary-600 dark:text-primary-400 text-sm font-medium hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors"
-                                                    >
-                                                        <Megaphone className="w-3.5 h-3.5" />
-                                                        Reklama qilish
-                                                    </Link>
+
+                                                {/* FAOL: Yakunlash + Tahrirlash, Reklama qilish */}
+                                                {listing.status === 'APPROVED' && (
+                                                    <>
+                                                        <div className="flex gap-2">
+                                                            <button
+                                                                onClick={() => setDeactivateListingId(listing.id)}
+                                                                className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                                                            >
+                                                                <CheckCircle className="w-3.5 h-3.5" />
+                                                                Yakunlash
+                                                            </button>
+                                                            <Link
+                                                                href={`/elon/${listing.id}/edit`}
+                                                                className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                                                            >
+                                                                <Edit className="w-3.5 h-3.5" />
+                                                                Tahrirlash
+                                                            </Link>
+                                                        </div>
+                                                        <Link
+                                                            href={`/elon/${listing.id}/tolov`}
+                                                            className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-primary-200 dark:border-primary-800 text-primary-600 dark:text-primary-400 text-sm font-medium hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors"
+                                                        >
+                                                            <Megaphone className="w-3.5 h-3.5" />
+                                                            Reklama qilish
+                                                        </Link>
+                                                    </>
                                                 )}
 
-                                                {/* To'lov qilish — APPROVED but not paid */}
-                                                {listing.status === 'APPROVED' && !listing.isPaid && (
-                                                    <Link
-                                                        href={`/elon/${listing.id}/tolov`}
-                                                        className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-primary-600 text-white text-sm font-medium hover:bg-primary-700 transition-colors"
-                                                    >
-                                                        <CreditCard className="w-3.5 h-3.5" />
-                                                        To&apos;lov qilish
-                                                    </Link>
-                                                )}
-
-                                                {/* Tahrirlash — DRAFT or REJECTED */}
-                                                {(listing.status === 'DRAFT' || listing.status === 'REJECTED') && (
-                                                    <Link
-                                                        href={`/elon/${listing.id}/edit`}
-                                                        className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
-                                                    >
-                                                        <Edit className="w-3.5 h-3.5" />
-                                                        Tahrirlash
-                                                    </Link>
-                                                )}
-
-                                                {/* Tekshiruvda — PENDING */}
+                                                {/* KUTAYOTGAN: Yakunlash + Tahrirlash */}
                                                 {listing.status === 'PENDING' && (
-                                                    <div className="flex items-center justify-center gap-1.5 py-2 text-sm text-yellow-600 dark:text-yellow-400">
-                                                        <Clock className="w-3.5 h-3.5" />
-                                                        Tekshiruvda...
+                                                    <div className="flex gap-2">
+                                                        <button
+                                                            onClick={() => setDeactivateListingId(listing.id)}
+                                                            className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                                                        >
+                                                            <CheckCircle className="w-3.5 h-3.5" />
+                                                            Yakunlash
+                                                        </button>
+                                                        <Link
+                                                            href={`/elon/${listing.id}/edit`}
+                                                            className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                                                        >
+                                                            <Edit className="w-3.5 h-3.5" />
+                                                            Tahrirlash
+                                                        </Link>
                                                     </div>
                                                 )}
 
-                                                {/* Qayta faollashtirish — EXPIRED */}
+                                                {/* TO'LANMAGAN: To'lov qilish + Tahrirlash */}
+                                                {!listing.isPaid && listing.status === 'DRAFT' && (
+                                                    <div className="flex gap-2">
+                                                        <Link
+                                                            href={`/elon/${listing.id}/tolov`}
+                                                            className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-primary-600 text-white text-sm font-medium hover:bg-primary-700 transition-colors"
+                                                        >
+                                                            <CreditCard className="w-3.5 h-3.5" />
+                                                            To&apos;lov qilish
+                                                        </Link>
+                                                        <Link
+                                                            href={`/elon/${listing.id}/edit`}
+                                                            className="flex items-center justify-center px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                                                        >
+                                                            <Edit className="w-3.5 h-3.5" />
+                                                        </Link>
+                                                    </div>
+                                                )}
+
+                                                {/* NOFAOL: O'chirish + Tahrirlash */}
+                                                {listing.status === 'ARCHIVED' && (
+                                                    <div className="flex gap-2">
+                                                        <button
+                                                            onClick={() => handleDeleteListing(listing.id)}
+                                                            className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 text-sm font-medium hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                                                        >
+                                                            <Trash2 className="w-3.5 h-3.5" />
+                                                            O&apos;chirish
+                                                        </button>
+                                                        <Link
+                                                            href={`/elon/${listing.id}/edit`}
+                                                            className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                                                        >
+                                                            <Edit className="w-3.5 h-3.5" />
+                                                            Tahrirlash
+                                                        </Link>
+                                                    </div>
+                                                )}
+
+                                                {/* RAD ETILGAN: Tahrirlash + Qayta yuborish */}
+                                                {listing.status === 'REJECTED' && (
+                                                    <div className="flex gap-2">
+                                                        <Link
+                                                            href={`/elon/${listing.id}/edit`}
+                                                            className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                                                        >
+                                                            <Edit className="w-3.5 h-3.5" />
+                                                            Tahrirlash
+                                                        </Link>
+                                                        <button
+                                                            onClick={() => handleResubmit(listing.id)}
+                                                            className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-primary-600 text-white text-sm font-medium hover:bg-primary-700 transition-colors"
+                                                        >
+                                                            <RefreshCw className="w-3.5 h-3.5" />
+                                                            Faollashtirish
+                                                        </button>
+                                                    </div>
+                                                )}
+
+                                                {/* MUDDATI TUGAGAN: Tahrirlash + Faollashtirish (to'lov orqali) */}
                                                 {listing.status === 'EXPIRED' && (
-                                                    <button
-                                                        onClick={() => handleReactivate(listing.id)}
-                                                        className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-primary-600 text-white text-sm font-medium hover:bg-primary-700 transition-colors"
-                                                    >
-                                                        <RefreshCw className="w-3.5 h-3.5" />
-                                                        Qayta faollashtirish
-                                                    </button>
+                                                    <div className="flex gap-2">
+                                                        <Link
+                                                            href={`/elon/${listing.id}/edit`}
+                                                            className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                                                        >
+                                                            <Edit className="w-3.5 h-3.5" />
+                                                            Tahrirlash
+                                                        </Link>
+                                                        <button
+                                                            onClick={() => handleReactivationPayment(listing.id)}
+                                                            disabled={reactivatingId === listing.id || loadingPrice}
+                                                            className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-primary-600 text-white text-sm font-medium hover:bg-primary-700 disabled:opacity-60 transition-colors"
+                                                        >
+                                                            {(reactivatingId === listing.id || loadingPrice)
+                                                                ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                                                : <RefreshCw className="w-3.5 h-3.5" />}
+                                                            Faollashtirish
+                                                        </button>
+                                                    </div>
                                                 )}
                                             </div>
                                         </div>
@@ -672,6 +815,53 @@ function MyListingsPageContent() {
                                 className="w-full px-4 py-3 rounded-xl text-slate-500 dark:text-slate-400 font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
                             >
                                 Yo&apos;q (bekor qilish)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* ── REACTIVATION PRICE MODAL ── */}
+            {reactivationModal && (
+                <div
+                    className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+                    onClick={() => setReactivationModal(null)}
+                >
+                    <div
+                        className="bg-white dark:bg-slate-800 rounded-2xl p-6 w-full max-w-sm shadow-2xl"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className="w-14 h-14 bg-amber-100 dark:bg-amber-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <RefreshCw className="w-7 h-7 text-amber-600 dark:text-amber-400" />
+                        </div>
+                        <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-1 text-center">
+                            E&apos;lonni faollashtirish
+                        </h3>
+                        <p className="text-sm text-slate-500 dark:text-slate-400 mb-5 text-center">
+                            Muddati tugagan e&apos;lonni qayta faollashtirish uchun to&apos;lov amalga oshiriladi
+                        </p>
+
+                        <div className="bg-slate-50 dark:bg-slate-700/50 rounded-xl p-4 mb-5 flex items-center justify-between">
+                            <span className="text-sm text-slate-500 dark:text-slate-400">To&apos;lov summasi:</span>
+                            <span className="text-lg font-bold text-primary-600 dark:text-primary-400">
+                                {reactivationModal.price.toLocaleString('uz-UZ')} so&apos;m
+                            </span>
+                        </div>
+
+                        <div className="space-y-2">
+                            <button
+                                onClick={handleConfirmReactivation}
+                                disabled={!!reactivatingId}
+                                className="w-full flex items-center justify-center gap-2 py-3 bg-primary-600 hover:bg-primary-700 disabled:opacity-60 text-white rounded-xl font-medium transition-colors"
+                            >
+                                {reactivatingId ? <Loader2 className="w-4 h-4 animate-spin" /> : <CreditCard className="w-4 h-4" />}
+                                To&apos;lov qilish
+                            </button>
+                            <button
+                                onClick={() => setReactivationModal(null)}
+                                className="w-full py-3 rounded-xl text-slate-500 dark:text-slate-400 font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                            >
+                                Bekor qilish
                             </button>
                         </div>
                     </div>

@@ -6,12 +6,12 @@ import { AdminLayout } from '@/components/layout/AdminLayout';
 import { getAdminListings, approveListing, rejectListing } from '@/lib/admin-api';
 import {
     Check, X, Eye, Loader2, Image as ImageIcon,
-    ListFilter, Clock, CheckCircle, XCircle, CreditCard,
+    ListFilter, Clock, CheckCircle, XCircle, CreditCard, TimerOff,
 } from 'lucide-react';
 import Link from 'next/link';
 import { AdminPagination } from '@/components/listing/AdminPagination';
 
-type TabKey = 'all' | 'pending' | 'approved' | 'rejected' | 'paid';
+type TabKey = 'all' | 'pending' | 'approved' | 'rejected' | 'paid' | 'expired';
 
 interface Tab {
     key: TabKey;
@@ -24,7 +24,8 @@ const TABS: Tab[] = [
     { key: 'all', label: "Barcha e'lonlar", icon: <ListFilter className="w-4 h-4" />, filter: {} },
     { key: 'pending', label: 'Kutilayotgan', icon: <Clock className="w-4 h-4" />, filter: { status: 'PENDING' } },
     { key: 'approved', label: 'Tasdiqlangan', icon: <CheckCircle className="w-4 h-4" />, filter: { status: 'APPROVED' } },
-    { key: 'rejected', label: 'Bekor qilingan', icon: <XCircle className="w-4 h-4" />, filter: { status: 'REJECTED' } },
+    { key: 'rejected', label: 'Rad etilgan', icon: <XCircle className="w-4 h-4" />, filter: { status: 'REJECTED' } },
+    { key: 'expired', label: 'Muddati tugagan', icon: <TimerOff className="w-4 h-4" />, filter: { status: 'EXPIRED' } },
     { key: 'paid', label: "To'langan", icon: <CreditCard className="w-4 h-4" />, filter: { status: 'APPROVED', isPaid: 'true' } },
 ];
 
@@ -35,13 +36,15 @@ function getStatusBadge(status: string, isPaid: boolean) {
                 ? <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">Faol</span>
                 : <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-700">To&apos;lanmagan</span>;
         case 'PENDING':
-            return <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700">Kutilmoqda</span>;
+            return <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700">Kutilayotgan</span>;
         case 'REJECTED':
             return <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700">Rad etilgan</span>;
         case 'DRAFT':
             return <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600">Qoralama</span>;
         case 'ARCHIVED':
-            return <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-500">Arxivlangan</span>;
+            return <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-500">Nofaol</span>;
+        case 'EXPIRED':
+            return <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700">Muddati tugagan</span>;
         default:
             return <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-500">{status}</span>;
     }
@@ -60,7 +63,7 @@ function AdminListingsContentInner() {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [tabCounts, setTabCounts] = useState<Record<TabKey, number>>({
-        all: 0, pending: 0, approved: 0, rejected: 0, paid: 0,
+        all: 0, pending: 0, approved: 0, rejected: 0, paid: 0, expired: 0,
     });
 
     const activeTab = TABS.find(t => t.key === currentTab) || TABS[0];
@@ -151,6 +154,7 @@ function AdminListingsContentInner() {
             case 'pending': return "Kutilayotgan e'lonlar yo'q";
             case 'approved': return "Tasdiqlangan e'lonlar yo'q";
             case 'rejected': return "Rad etilgan e'lonlar yo'q";
+            case 'expired': return "Muddati tugagan e'lonlar yo'q";
             case 'paid': return "To'langan e'lonlar yo'q";
             default: return "Hech qanday e'lon topilmadi";
         }
