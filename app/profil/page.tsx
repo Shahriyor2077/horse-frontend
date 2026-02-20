@@ -164,26 +164,27 @@ function ProfilPageContent() {
                         </Link>
                     </div>
 
-                    {/* Bottom row: full-width horizontal */}
-                    <Link
-                        href="/profil/elonlarim"
-                        className="flex items-center gap-4 bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-5 hover:border-primary-500 transition-colors group"
-                    >
-                        <div className="w-12 h-12 bg-primary-100 dark:bg-primary-900/30 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
-                            <FileText className="w-6 h-6 text-primary-600 dark:text-primary-400" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                            <h3 className="font-semibold text-slate-900 dark:text-slate-100 mb-0.5">
-                                Mening e&apos;lonlarim
-                            </h3>
-                            <p className="text-sm text-slate-500 dark:text-slate-400">
-                                Barcha e&apos;lonlaringizni ko&apos;ring va tahrirlang
-                            </p>
-                        </div>
-                        <svg className="w-5 h-5 text-slate-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                        </svg>
-                    </Link>
+                    {/* Bottom row: full-width horizontal link */}
+                    <div className="space-y-3">
+                        <Link
+                            href="/profil/elonlarim"
+                            className="flex items-center gap-4 bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-5 hover:border-primary-500 transition-colors group"
+                        >
+                            <div className="w-12 h-12 bg-primary-100 dark:bg-primary-900/30 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                                <FileText className="w-6 h-6 text-primary-600 dark:text-primary-400" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                                <h3 className="font-semibold text-slate-900 dark:text-slate-100 mb-0.5">
+                                    Mening e&apos;lonlarim
+                                </h3>
+                                <p className="text-sm text-slate-500 dark:text-slate-400">
+                                    Barcha e&apos;lonlaringizni ko&apos;ring va tahrirlang
+                                </p>
+                            </div>
+                            <ChevronRight className="w-5 h-5 text-slate-400 flex-shrink-0" />
+                        </Link>
+
+                    </div>
 
                     {/* Settings & Help */}
                     <div className="mt-6">
@@ -195,7 +196,7 @@ function ProfilPageContent() {
                                 <div className="w-9 h-9 bg-sky-100 dark:bg-sky-900/30 rounded-xl flex items-center justify-center flex-shrink-0">
                                     <Send className="w-4 h-4 text-sky-500" />
                                 </div>
-                                <span className="flex-1 text-sm font-medium text-slate-800 dark:text-slate-100">Telegram xabarnomalar</span>
+                                <span className="flex-1 text-sm font-medium text-slate-800 dark:text-slate-100">Telegram kanal</span>
                                 <ChevronRight className="w-4 h-4 text-slate-400" />
                             </a>
                             <Link href="/terms" className="flex items-center gap-4 px-5 py-4 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">

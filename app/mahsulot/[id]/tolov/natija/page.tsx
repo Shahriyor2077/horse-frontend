@@ -98,7 +98,10 @@ function ProductPaymentResultContent() {
                             To&apos;lov muvaffaqiyatli!
                         </h1>
                         <p className="text-slate-500 dark:text-slate-400 mb-2">
-                            Mahsulotingiz platformada chop etildi.
+                            Mahsulotingiz admin tekshiruviga yuborildi.
+                        </p>
+                        <p className="text-sm text-slate-400 dark:text-slate-500 mb-2">
+                            Tasdiqlangandan so&apos;ng mahsulotlar bo&apos;limida ko&apos;rinadi.
                         </p>
                         <p className="text-sm text-slate-400 dark:text-slate-500 mb-6">
                             {countdown} soniyadan so'ng e'lonlarimga o'tiladi...

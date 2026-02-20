@@ -43,6 +43,27 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
         fetchProduct();
     }, [params.slug]);
 
+    // View tracking — localStorage orqali deduplikatsiya (24 soat)
+    useEffect(() => {
+        if (!params.slug) return;
+        const CACHE_KEY = 'viewed_products';
+        const TTL = 24 * 60 * 60 * 1000;
+        try {
+            const raw = localStorage.getItem(CACHE_KEY);
+            const cache: Record<string, number> = raw ? JSON.parse(raw) : {};
+            if (cache[params.slug] && Date.now() - cache[params.slug] < TTL) return;
+            const token = localStorage.getItem('accessToken');
+            fetch(`${API_URL}/api/products/${params.slug}/view`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: token ? { Authorization: `Bearer ${token}` } : {},
+            }).then(() => {
+                cache[params.slug] = Date.now();
+                localStorage.setItem(CACHE_KEY, JSON.stringify(cache));
+            }).catch(() => { });
+        } catch { }
+    }, [params.slug]);
+
     const fetchProduct = async () => {
         setLoading(true);
         try {
