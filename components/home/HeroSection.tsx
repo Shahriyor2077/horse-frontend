@@ -3,8 +3,10 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Search, Plus } from 'lucide-react';
-import Particles, { initParticlesEngine } from '@tsparticles/react';
+import dynamic from 'next/dynamic';
+import { initParticlesEngine } from '@tsparticles/react';
 import { loadSlim } from '@tsparticles/slim';
+const Particles = dynamic(() => import('@tsparticles/react').then(m => m.default), { ssr: false });
 
 export function HeroSection() {
     const [ready, setReady] = useState(false);

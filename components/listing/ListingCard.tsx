@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { MapPin, Video, Clock, Crown } from 'lucide-react';
-import { GiHorseHead } from 'react-icons/gi';
+import { HorseHeadIcon } from '@/components/icons/HorseIcons';
 import { Listing } from '@/lib/api';
 import { formatPrice, formatRelativeTime } from '@/lib/utils';
 import { FavoriteButton } from './FavoriteButton';
@@ -26,7 +26,7 @@ export function ListingCard({ listing }: ListingCardProps) {
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                 ) : (
-                    <div className="w-full h-full flex items-center justify-center text-slate-300"><GiHorseHead className="w-20 h-20" /></div>
+                    <div className="w-full h-full flex items-center justify-center text-slate-300"><HorseHeadIcon className="w-20 h-20" /></div>
                 )}
 
                 {/* Top-left badges */}

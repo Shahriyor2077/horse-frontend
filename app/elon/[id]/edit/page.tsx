@@ -141,7 +141,7 @@ function EditListingPageContent() {
     const nextStep = () => setCurrentStep(prev => Math.min(prev + 1, 5));
     const prevStep = () => setCurrentStep(prev => Math.max(prev - 1, 1));
 
-    const canEdit = listingStatus === 'DRAFT' || listingStatus === 'REJECTED';
+    const canEdit = ['DRAFT', 'REJECTED', 'EXPIRED', 'ARCHIVED'].includes(listingStatus);
 
     const saveChanges = async () => {
         setIsSubmitting(true);
@@ -243,8 +243,12 @@ function EditListingPageContent() {
                 {!canEdit && (
                     <div className="mt-4 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
                         <p className="text-sm text-yellow-800 dark:text-yellow-300">
-                            Bu e'lon hozir <strong>{listingStatus === 'PENDING' ? 'tekshiruvda' : listingStatus === 'APPROVED' ? 'tasdiqlangan' : listingStatus.toLowerCase()}</strong> holatida.
-                            Faqat qoralama yoki rad etilgan e'lonlarni tahrirlash mumkin.
+                            Bu e'lon hozir <strong>{
+                                listingStatus === 'PENDING' ? 'tekshiruvda' :
+                                listingStatus === 'APPROVED' ? 'tasdiqlangan' :
+                                listingStatus.toLowerCase()
+                            }</strong> holatida.
+                            Faqat qoralama, rad etilgan, muddati o'tgan yoki arxivlangan e'lonlarni tahrirlash mumkin.
                         </p>
                     </div>
                 )}

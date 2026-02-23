@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { MapPin, Video, CheckCircle, ChevronLeft, ChevronRight } from 'lucide-react';
-import { GiHorseHead } from 'react-icons/gi';
+import { HorseHeadIcon } from '@/components/icons/HorseIcons';
 import { formatPrice } from '@/lib/utils';
 import { Listing } from '@/lib/api';
 
@@ -119,7 +119,7 @@ export function FeaturedSlider({ listings }: FeaturedSliderProps) {
                                 />
                             ) : (
                                 <div className="w-full h-full flex items-center justify-center text-slate-300">
-                                    <GiHorseHead className="w-20 h-20" />
+                                    <HorseHeadIcon className="w-20 h-20" />
                                 </div>
                             )}
                             {listing.hasVideo && (

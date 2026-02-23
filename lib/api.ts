@@ -55,10 +55,12 @@ export async function apiFetch<T>(
 
     const isAuthEndpoint = endpoint.includes('/auth/');
 
+    const hasRevalidate = (init as any)?.next?.revalidate !== undefined;
+
     const doFetch = (token: string | null) =>
         fetch(url, {
             ...init,
-            cache: init.cache ?? 'no-store',
+            ...(hasRevalidate ? {} : { cache: init.cache ?? 'no-store' }),
             credentials: 'include',
             headers: {
                 'Content-Type': 'application/json',
@@ -179,7 +181,9 @@ export async function getListings(filter: ListingsFilter = {}): Promise<Listings
 
 export async function getListing(idOrSlug: string): Promise<Listing> {
     // Try to fetch by ID or slug
-    const response = await apiFetch<AuthResponse<Listing>>(`/api/listings/${idOrSlug}`);
+    const response = await apiFetch<AuthResponse<Listing>>(`/api/listings/${idOrSlug}`, {
+        next: { revalidate: 60 },
+    } as any);
     if (response.success && response.data) {
         return response.data;
     }
@@ -189,7 +193,10 @@ export async function getListing(idOrSlug: string): Promise<Listing> {
 export async function getFeaturedListings(limit = 12): Promise<Listing[]> {
     // Ensure limit doesn't exceed 50
     const safeLimit = Math.min(limit, 50);
-    const response = await apiFetch<AuthResponse<Listing[]>>('/api/listings/featured', { params: { limit: safeLimit } });
+    const response = await apiFetch<AuthResponse<Listing[]>>('/api/listings/featured', {
+        params: { limit: safeLimit },
+        next: { revalidate: 60 },
+    } as any);
     if (response.success && response.data) {
         return response.data;
     }
@@ -197,7 +204,9 @@ export async function getFeaturedListings(limit = 12): Promise<Listing[]> {
 }
 
 export async function getSimilarListings(id: string): Promise<Listing[]> {
-    const response = await apiFetch<AuthResponse<Listing[]>>(`/api/listings/${id}/similar`);
+    const response = await apiFetch<AuthResponse<Listing[]>>(`/api/listings/${id}/similar`, {
+        next: { revalidate: 120 },
+    } as any);
     if (response.success && response.data) {
         return response.data;
     }
@@ -221,7 +230,9 @@ export interface District {
 }
 
 export async function getRegions(): Promise<Region[]> {
-    const response = await apiFetch<AuthResponse<Region[]>>('/api/regions');
+    const response = await apiFetch<AuthResponse<Region[]>>('/api/regions', {
+        next: { revalidate: 3600 },
+    } as any);
     if (response.success && response.data) {
         return response.data;
     }
@@ -229,7 +240,9 @@ export async function getRegions(): Promise<Region[]> {
 }
 
 export async function getRegionsWithDistricts(): Promise<Region[]> {
-    const response = await apiFetch<AuthResponse<Region[]>>('/api/regions/with-districts');
+    const response = await apiFetch<AuthResponse<Region[]>>('/api/regions/with-districts', {
+        next: { revalidate: 3600 },
+    } as any);
     if (response.success && response.data) {
         return response.data;
     }
@@ -244,7 +257,9 @@ export interface Breed {
 }
 
 export async function getBreeds(): Promise<Breed[]> {
-    const response = await apiFetch<AuthResponse<Breed[]>>('/api/breeds');
+    const response = await apiFetch<AuthResponse<Breed[]>>('/api/breeds', {
+        next: { revalidate: 3600 },
+    } as any);
     if (response.success && response.data) {
         return response.data;
     }

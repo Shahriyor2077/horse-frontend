@@ -5,7 +5,7 @@ import { AdminLayout } from '@/components/layout/AdminLayout';
 import { getAdminEvents, createAdminEvent, updateAdminEvent, deleteAdminEvent } from '@/lib/admin-api';
 import { getRegionsWithDistricts, Region } from '@/lib/api';
 import { Plus, Edit, Trash2, Loader2, X, Save, Calendar, MapPin, ChevronLeft, ChevronRight } from 'lucide-react';
-import { GiHorseshoe } from 'react-icons/gi';
+import { HorseshoeIcon } from '@/components/icons/HorseIcons';
 import { CustomSelect } from '@/components/ui/CustomSelect';
 
 interface Event {
@@ -342,7 +342,7 @@ export default function AdminKopkariPage() {
                     </div>
                 ) : events.length === 0 ? (
                     <div className="text-center py-16">
-                        <div className="mb-3 flex justify-center"><GiHorseshoe className="w-12 h-12 text-slate-300" /></div>
+                        <div className="mb-3 flex justify-center"><HorseshoeIcon className="w-12 h-12 text-slate-300" /></div>
                         <p className="text-slate-500">Hozircha tadbirlar yo'q</p>
                         <button onClick={openCreate} className="mt-4 text-amber-600 hover:underline text-sm">
                             Birinchi tadbirni qo'shing

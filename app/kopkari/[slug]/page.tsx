@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 import { getEvent } from '@/lib/api';
 import { formatDate, formatPrice } from '@/lib/utils';
 import { MapPin, Calendar, Trophy, User, Phone, Navigation } from 'lucide-react';
-import { GiHorseshoe } from 'react-icons/gi';
+import { HorseshoeIcon } from '@/components/icons/HorseIcons';
 import ShareButton from './ShareButton';
 
 export default async function EventDetailPage({ params }: { params: { slug: string } }) {
@@ -19,7 +19,7 @@ export default async function EventDetailPage({ params }: { params: { slug: stri
             <div className="bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-sm border border-slate-200 dark:border-slate-700">
                 {/* Header */}
                 <div className="relative h-48 md:h-64 bg-gradient-to-br from-amber-700 via-orange-700 to-red-800 flex items-end overflow-hidden">
-                    <div className="absolute inset-0 flex items-center justify-center opacity-10 pointer-events-none"><GiHorseshoe className="w-64 h-64 text-white" /></div>
+                    <div className="absolute inset-0 flex items-center justify-center opacity-10 pointer-events-none"><HorseshoeIcon className="w-64 h-64 text-white" /></div>
                     <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/70 to-transparent" />
 
                     <div className="relative z-10 p-6 md:p-8 w-full">

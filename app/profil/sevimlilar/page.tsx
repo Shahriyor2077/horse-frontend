@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '@/components/providers/AuthProvider';
 import Link from 'next/link';
-import { GiHorseHead } from 'react-icons/gi';
+import { HorseHeadIcon } from '@/components/icons/HorseIcons';
 import { Heart, MapPin, ChevronLeft, ChevronRight } from 'lucide-react';
 import { RequireAuth } from '@/components/auth/RequireAuth';
 
@@ -120,7 +120,7 @@ function FavoritesPageContent() {
                                             />
                                         ) : (
                                             <div className="w-full h-full flex items-center justify-center text-slate-300 dark:text-slate-500">
-                                                <GiHorseHead className="w-16 h-16" />
+                                                <HorseHeadIcon className="w-16 h-16" />
                                             </div>
                                         )}
                                     </div>

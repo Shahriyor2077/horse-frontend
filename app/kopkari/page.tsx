@@ -1,7 +1,7 @@
 import { formatDate, formatPrice } from '@/lib/utils';
 import { KopkariEvent } from '@/lib/api';
 import { MapPin, Calendar, Trophy, ChevronRight, Plus } from 'lucide-react';
-import { GiHorseshoe } from 'react-icons/gi';
+import { HorseshoeIcon } from '@/components/icons/HorseIcons';
 import Link from 'next/link';
 import { KopkariFilters } from './KopkariFilters';
 
@@ -148,7 +148,7 @@ export default async function KopkariPage({
                     </div>
                 ) : (
                     <div className="text-center py-20 bg-white dark:bg-slate-800 rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-700">
-                        <div className="mb-4 flex justify-center"><GiHorseshoe className="w-16 h-16 text-slate-300 dark:text-slate-600" /></div>
+                        <div className="mb-4 flex justify-center"><HorseshoeIcon className="w-16 h-16 text-slate-300 dark:text-slate-600" /></div>
                         <h3 className="text-xl font-semibold text-slate-700 dark:text-slate-300 mb-2">Tadbirlar topilmadi</h3>
                         <p className="text-slate-500 dark:text-slate-400">Boshqa filter tanlang</p>
                     </div>
