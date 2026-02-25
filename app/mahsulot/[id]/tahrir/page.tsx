@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { Loader2, Package, Save } from 'lucide-react';
+import { Loader2, Package, Save, ArrowLeft } from 'lucide-react';
 import { CustomSelect } from '@/components/ui/CustomSelect';
 import { RequireAuth } from '@/components/auth/RequireAuth';
 
@@ -150,6 +150,14 @@ function EditProductForm() {
     return (
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-2xl">
             <div className="mb-8">
+                <button
+                    type="button"
+                    onClick={() => router.back()}
+                    className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 mb-4"
+                >
+                    <ArrowLeft className="w-4 h-4" />
+                    Orqaga
+                </button>
                 <div className="flex items-center gap-3 mb-2">
                     <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900/30 rounded-xl flex items-center justify-center">
                         <Package className="w-5 h-5 text-primary-600 dark:text-primary-400" />

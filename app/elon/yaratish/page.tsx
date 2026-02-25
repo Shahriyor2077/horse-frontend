@@ -93,8 +93,8 @@ function CreateListingPageContent() {
         setFormData(prev => ({ ...prev, [name]: checked }));
     };
 
-    const nextStep = () => setCurrentStep(prev => Math.min(prev + 1, 5));
-    const prevStep = () => setCurrentStep(prev => Math.max(prev - 1, 1));
+    const nextStep = () => { setCurrentStep(prev => Math.min(prev + 1, 5)); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+    const prevStep = () => { setCurrentStep(prev => Math.max(prev - 1, 1)); window.scrollTo({ top: 0, behavior: 'smooth' }); };
 
     const saveDraft = async () => {
         setIsSubmitting(true);
@@ -179,7 +179,7 @@ function CreateListingPageContent() {
     };
 
     return (
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 max-w-3xl">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 max-w-3xl pb-24 sm:pb-12">
             <div className="mb-8">
                 <h1 className="text-2xl font-bold text-slate-900 mb-2">E'lon joylash</h1>
                 <p className="text-slate-500">Otingizni sotish uchun ma'lumotlarni to'ldiring</p>
@@ -472,7 +472,7 @@ function CreateListingPageContent() {
                 )}
 
                 {/* Actions */}
-                <div className="mt-8 pt-6 border-t border-slate-200 dark:border-slate-700 flex justify-between">
+                <div className="fixed bottom-0 left-0 right-0 z-30 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700 px-4 py-3 flex justify-between sm:static sm:bg-transparent sm:dark:bg-transparent sm:border-slate-200 sm:mt-8 sm:pt-6 sm:px-0 sm:py-0 sm:z-auto">
                     <button
                         onClick={prevStep}
                         disabled={currentStep === 1}

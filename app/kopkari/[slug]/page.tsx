@@ -1,9 +1,10 @@
 import { notFound } from 'next/navigation';
 import { getEvent } from '@/lib/api';
 import { formatDate, formatPrice } from '@/lib/utils';
-import { MapPin, Calendar, Trophy, User, Phone, Navigation } from 'lucide-react';
+import { MapPin, Calendar, Trophy, User, Phone, Navigation, ArrowLeft } from 'lucide-react';
 import { HorseshoeIcon } from '@/components/icons/HorseIcons';
 import ShareButton from './ShareButton';
+import Link from 'next/link';
 
 export default async function EventDetailPage({ params }: { params: { slug: string } }) {
     let event;
@@ -16,6 +17,12 @@ export default async function EventDetailPage({ params }: { params: { slug: stri
 
     return (
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div className="mb-4">
+                <Link href="/kopkari" className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200">
+                    <ArrowLeft className="w-4 h-4" />
+                    Orqaga
+                </Link>
+            </div>
             <div className="bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-sm border border-slate-200 dark:border-slate-700">
                 {/* Header */}
                 <div className="relative h-48 md:h-64 bg-gradient-to-br from-amber-700 via-orange-700 to-red-800 flex items-end overflow-hidden">

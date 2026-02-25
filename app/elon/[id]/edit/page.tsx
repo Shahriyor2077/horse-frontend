@@ -138,8 +138,8 @@ function EditListingPageContent() {
         setFormData(prev => ({ ...prev, [name]: checked }));
     };
 
-    const nextStep = () => setCurrentStep(prev => Math.min(prev + 1, 5));
-    const prevStep = () => setCurrentStep(prev => Math.max(prev - 1, 1));
+    const nextStep = () => { setCurrentStep(prev => Math.min(prev + 1, 5)); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+    const prevStep = () => { setCurrentStep(prev => Math.max(prev - 1, 1)); window.scrollTo({ top: 0, behavior: 'smooth' }); };
 
     const canEdit = ['DRAFT', 'REJECTED', 'EXPIRED', 'ARCHIVED'].includes(listingStatus);
 
@@ -231,12 +231,16 @@ function EditListingPageContent() {
     }
 
     return (
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 max-w-3xl">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 max-w-3xl pb-24 sm:pb-12">
             <div className="mb-8">
-                <Link href="/profil/elonlarim" className="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 mb-4">
+                <button
+                    type="button"
+                    onClick={() => router.back()}
+                    className="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 mb-4"
+                >
                     <ArrowLeft className="w-4 h-4" />
-                    E'lonlarimga qaytish
-                </Link>
+                    Orqaga
+                </button>
                 <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-2">E'lonni tahrirlash</h1>
                 <p className="text-slate-500 dark:text-slate-400">Ma'lumotlarni o'zgartiring va qayta yuboring</p>
 
@@ -570,15 +574,17 @@ function EditListingPageContent() {
                 )}
 
                 {/* Actions */}
-                <div className="mt-8 pt-6 border-t border-slate-200 dark:border-slate-700 flex justify-between">
-                    <button
-                        onClick={prevStep}
-                        disabled={currentStep === 1}
-                        className={`btn btn-outline ${currentStep === 1 ? 'invisible' : ''}`}
-                    >
-                        <ChevronLeft className="w-5 h-5" />
-                        Ortga
-                    </button>
+                <div className="fixed bottom-0 left-0 right-0 z-30 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700 px-4 py-3 flex justify-between sm:static sm:bg-transparent sm:dark:bg-transparent sm:border-slate-200 sm:mt-8 sm:pt-6 sm:px-0 sm:py-0 sm:z-auto">
+                    {currentStep === 1 ? (
+                        <Link href="/profil/elonlarim" className="btn btn-outline">
+                            Bekor qilish
+                        </Link>
+                    ) : (
+                        <button onClick={prevStep} className="btn btn-outline">
+                            <ChevronLeft className="w-5 h-5" />
+                            Ortga
+                        </button>
+                    )}
 
                     {currentStep < 5 ? (
                         <button

@@ -7,7 +7,7 @@ import { FeaturedSlider } from '@/components/home/FeaturedSlider';
 
 export default async function HomePage() {
     // Fetch real data from API - more listings for slider
-    const featuredListings = await getFeaturedListings(12).catch(() => []);
+    const featuredListings = await getFeaturedListings(50).catch(() => []);
     const allEvents = await getAllPublicEvents().catch(() => []);
     const upcomingEvents = allEvents.slice(0, 3);
     return (

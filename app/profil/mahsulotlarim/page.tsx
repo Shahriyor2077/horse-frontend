@@ -1,9 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Package, Trash2, Eye, Loader2, ArrowLeft, Plus, ShoppingCart, Pencil } from 'lucide-react';
+import { Package, Trash2, Eye, Loader2, ArrowLeft, Plus, ShoppingCart, Pencil, ChevronLeft, ChevronRight } from 'lucide-react';
+
+const ITEMS_PER_PAGE = 12;
 import { RequireAuth } from '@/components/auth/RequireAuth';
 
 interface MyProduct {
@@ -45,6 +47,7 @@ function MahsulotlarimContent() {
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('PUBLISHED');
     const [deletingId, setDeletingId] = useState<string | null>(null);
+    const [currentPage, setCurrentPage] = useState(1);
 
     const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
@@ -83,10 +86,19 @@ function MahsulotlarimContent() {
         }
     };
 
-    const filteredProducts = products.filter(p => {
+    const filteredProducts = useMemo(() => products.filter(p => {
         if (activeTab === 'UNPAID') return !p.isPaid;
         return p.status === activeTab;
-    });
+    }), [products, activeTab]);
+
+    const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
+    const paginatedProducts = useMemo(
+        () => filteredProducts.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE),
+        [filteredProducts, currentPage]
+    );
+
+    // Reset page when tab changes
+    useEffect(() => { setCurrentPage(1); }, [activeTab]);
 
     const tabCount = (key: string) => {
         if (key === 'UNPAID') return products.filter(p => !p.isPaid).length;
@@ -172,7 +184,7 @@ function MahsulotlarimContent() {
                     </div>
                 ) : (
                     <div className="space-y-3">
-                        {filteredProducts.map(product => {
+                        {paginatedProducts.map(product => {
                             const badge = STATUS_BADGE[product.status];
                             return (
                                 <div
@@ -255,6 +267,38 @@ function MahsulotlarimContent() {
                                 </div>
                             );
                         })}
+                    </div>
+                )}
+
+                {totalPages > 1 && (
+                    <div className="flex items-center justify-center gap-2 mt-6">
+                        <button
+                            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                            disabled={currentPage === 1}
+                            className="w-9 h-9 rounded-xl flex items-center justify-center bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                        >
+                            <ChevronLeft className="w-4 h-4" />
+                        </button>
+                        {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
+                            <button
+                                key={p}
+                                onClick={() => setCurrentPage(p)}
+                                className={`w-9 h-9 rounded-xl flex items-center justify-center text-sm font-medium transition-colors ${
+                                    p === currentPage
+                                        ? 'bg-primary-600 text-white'
+                                        : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'
+                                }`}
+                            >
+                                {p}
+                            </button>
+                        ))}
+                        <button
+                            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                            disabled={currentPage === totalPages}
+                            className="w-9 h-9 rounded-xl flex items-center justify-center bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                        >
+                            <ChevronRight className="w-4 h-4" />
+                        </button>
                     </div>
                 )}
             </div>

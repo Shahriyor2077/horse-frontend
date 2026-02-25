@@ -190,9 +190,9 @@ export async function getListing(idOrSlug: string): Promise<Listing> {
     throw new Error('Listing not found');
 }
 
-export async function getFeaturedListings(limit = 12): Promise<Listing[]> {
-    // Ensure limit doesn't exceed 50
-    const safeLimit = Math.min(limit, 50);
+export async function getFeaturedListings(limit = 50): Promise<Listing[]> {
+    // Ensure limit doesn't exceed 100
+    const safeLimit = Math.min(limit, 100);
     const response = await apiFetch<AuthResponse<Listing[]>>('/api/listings/featured', {
         params: { limit: safeLimit },
         next: { revalidate: 60 },

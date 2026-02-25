@@ -2,10 +2,10 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
-import { MapPin, Video, CheckCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { MapPin, Video, ChevronLeft, ChevronRight, Heart } from 'lucide-react';
 import { HorseHeadIcon } from '@/components/icons/HorseIcons';
 import { formatPrice } from '@/lib/utils';
-import { Listing } from '@/lib/api';
+import { Listing, addToFavorites, removeFromFavorites } from '@/lib/api';
 
 interface FeaturedSliderProps {
     listings: Listing[];
@@ -17,6 +17,48 @@ export function FeaturedSlider({ listings }: FeaturedSliderProps) {
     const [canScrollRight, setCanScrollRight] = useState(true);
     const intervalRef = useRef<NodeJS.Timeout | null>(null);
     const [isHovered, setIsHovered] = useState(false);
+    const [favorites, setFavorites] = useState<Set<string>>(new Set());
+
+    // Load user's existing favorites on mount
+    useEffect(() => {
+        const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+        if (!token) return;
+        fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/my/listings/favorites`, {
+            credentials: 'include',
+            headers: { Authorization: `Bearer ${token}` },
+        })
+            .then(r => r.ok ? r.json() : null)
+            .then(data => {
+                const list: { id: string }[] = Array.isArray(data) ? data : (data?.data ?? []);
+                if (list.length) setFavorites(new Set(list.map(l => l.id)));
+            })
+            .catch(() => {});
+    }, []);
+
+    const handleFavorite = async (e: React.MouseEvent, listingId: string) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const isFav = favorites.has(listingId);
+        setFavorites(prev => {
+            const next = new Set(prev);
+            isFav ? next.delete(listingId) : next.add(listingId);
+            return next;
+        });
+        try {
+            if (isFav) {
+                await removeFromFavorites(listingId);
+            } else {
+                await addToFavorites(listingId);
+            }
+        } catch {
+            // Revert on error
+            setFavorites(prev => {
+                const next = new Set(prev);
+                isFav ? next.add(listingId) : next.delete(listingId);
+                return next;
+            });
+        }
+    };
 
     const checkScroll = useCallback(() => {
         const el = scrollRef.current;
@@ -127,11 +169,12 @@ export function FeaturedSlider({ listings }: FeaturedSliderProps) {
                                     <Video className="w-3 h-3" /> Video
                                 </span>
                             )}
-                            {listing.user?.isVerified && (
-                                <span className="absolute top-3 right-3 badge badge-success text-xs px-2 py-1 rounded-md flex items-center gap-1">
-                                    <CheckCircle className="w-3 h-3" /> Tasdiqlangan
-                                </span>
-                            )}
+                            <button
+                                onClick={(e) => handleFavorite(e, listing.id)}
+                                className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm flex items-center justify-center hover:scale-110 transition-transform shadow-sm"
+                            >
+                                <Heart className={`w-4 h-4 transition-colors ${favorites.has(listing.id) ? 'fill-red-500 text-red-500' : 'text-slate-400'}`} />
+                            </button>
                             {/* Premium badge */}
                             <div className="absolute bottom-3 left-3">
                                 <span className="bg-amber-500 text-white text-xs font-semibold px-2.5 py-1 rounded-md shadow-sm">

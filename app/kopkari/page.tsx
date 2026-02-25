@@ -4,6 +4,9 @@ import { MapPin, Calendar, Trophy, ChevronRight, Plus } from 'lucide-react';
 import { HorseshoeIcon } from '@/components/icons/HorseIcons';
 import Link from 'next/link';
 import { KopkariFilters } from './KopkariFilters';
+import { Pagination } from '@/components/listing/Pagination';
+
+const ITEMS_PER_PAGE = 12;
 
 export const revalidate = 0;
 
@@ -45,12 +48,16 @@ export const metadata = {
 export default async function KopkariPage({
     searchParams,
 }: {
-    searchParams: { regionId?: string; status?: string };
+    searchParams: { regionId?: string; status?: string; page?: string };
 }) {
     const [events, regions] = await Promise.all([
         getPublicEvents(searchParams.regionId, searchParams.status),
         getRegions(),
     ]);
+
+    const currentPage = Math.max(1, Number(searchParams.page) || 1);
+    const totalPages = Math.ceil(events.length / ITEMS_PER_PAGE);
+    const paginatedEvents = events.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-800/50">
@@ -86,8 +93,9 @@ export default async function KopkariPage({
 
                 {/* Events grid */}
                 {events.length > 0 ? (
+                    <>
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                        {events.map((event: KopkariEvent) => {
+                        {paginatedEvents.map((event: KopkariEvent) => {
                             const date = new Date(event.startsAt);
                             const isPast = date < new Date();
                             return (
@@ -146,6 +154,15 @@ export default async function KopkariPage({
                             );
                         })}
                     </div>
+                    {totalPages > 1 && (
+                        <Pagination
+                            currentPage={currentPage}
+                            totalPages={totalPages}
+                            searchParams={searchParams}
+                            basePath="/kopkari"
+                        />
+                    )}
+                    </>
                 ) : (
                     <div className="text-center py-20 bg-white dark:bg-slate-800 rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-700">
                         <div className="mb-4 flex justify-center"><HorseshoeIcon className="w-16 h-16 text-slate-300 dark:text-slate-600" /></div>
