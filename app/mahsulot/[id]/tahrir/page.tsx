@@ -54,12 +54,11 @@ function EditProductForm() {
         const load = async () => {
             setLoading(true);
             try {
-                const token = localStorage.getItem('accessToken');
                 const [catRes, regRes, myRes] = await Promise.all([
                     fetch(`${API_URL}/api/products/categories`),
                     fetch(`${API_URL}/api/regions/with-districts`),
                     fetch(`${API_URL}/api/my/products`, {
-                        headers: { Authorization: `Bearer ${token}` },
+                        credentials: 'include',
                     }),
                 ]);
 
@@ -135,13 +134,12 @@ function EditProductForm() {
 
         setSaving(true);
         try {
-            const token = localStorage.getItem('accessToken');
             const res = await fetch(`${API_URL}/api/my/products/${productId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`,
                 },
+                credentials: 'include',
                 body: JSON.stringify({
                     title: form.title,
                     categoryId: form.categoryId || undefined,
@@ -160,7 +158,8 @@ function EditProductForm() {
             if (media.length > 0) {
                 await fetch(`${API_URL}/api/media/attach`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
                     body: JSON.stringify({ productId, media }),
                 });
             }

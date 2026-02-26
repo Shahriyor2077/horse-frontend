@@ -13,12 +13,10 @@ export function ProductViewTracker({ slug }: { slug: string }) {
             if (cache[slug] && Date.now() - cache[slug] < CACHE_TTL) return;
 
             const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-            const token = localStorage.getItem('accessToken');
 
             fetch(`${apiBase}/api/products/${slug}/view`, {
                 method: 'POST',
                 credentials: 'include',
-                headers: token ? { Authorization: `Bearer ${token}` } : {},
             }).then(() => {
                 cache[slug] = Date.now();
                 localStorage.setItem(CACHE_KEY, JSON.stringify(cache));

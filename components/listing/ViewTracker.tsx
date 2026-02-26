@@ -37,12 +37,10 @@ export function ViewTracker({ listingId }: { listingId: string }) {
         if (hasViewedRecently(listingId)) return;
 
         const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-        const token = localStorage.getItem('accessToken');
 
         fetch(`${apiBase}/api/listings/${listingId}/view`, {
             method: 'POST',
             credentials: 'include',
-            headers: token ? { Authorization: `Bearer ${token}` } : {},
         }).then(() => {
             markViewed(listingId);
         }).catch(() => { });

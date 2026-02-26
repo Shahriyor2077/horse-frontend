@@ -27,13 +27,10 @@ export default function AdminCategoriesPage() {
     const fetchCategories = async () => {
         setLoading(true);
         try {
-            const token = localStorage.getItem('accessToken');
             const res = await fetch(
                 `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/admin/products/categories/all`,
                 {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
+                    credentials: 'include',
                 }
             );
             const data = await res.json();
@@ -69,15 +66,14 @@ export default function AdminCategoriesPage() {
         }
 
         try {
-            const token = localStorage.getItem('accessToken');
             const res = await fetch(
                 `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/admin/products/categories`,
                 {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        Authorization: `Bearer ${token}`,
                     },
+                    credentials: 'include',
                     body: JSON.stringify(formData),
                 }
             );
@@ -103,15 +99,14 @@ export default function AdminCategoriesPage() {
         }
 
         try {
-            const token = localStorage.getItem('accessToken');
             const res = await fetch(
                 `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/admin/products/categories/${id}`,
                 {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
-                        Authorization: `Bearer ${token}`,
                     },
+                    credentials: 'include',
                     body: JSON.stringify(formData),
                 }
             );
@@ -134,14 +129,11 @@ export default function AdminCategoriesPage() {
         if (!confirm(`"${name}" kategoriyasini o'chirishni xohlaysizmi?`)) return;
 
         try {
-            const token = localStorage.getItem('accessToken');
             const res = await fetch(
                 `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/admin/products/categories/${id}`,
                 {
                     method: 'DELETE',
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
+                    credentials: 'include',
                 }
             );
 

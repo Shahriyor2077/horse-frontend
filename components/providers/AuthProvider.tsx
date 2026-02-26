@@ -38,10 +38,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             const response = await getCurrentUser();
 
             if (!response.success || !response.data) {
-                if (typeof window !== 'undefined') {
-                    localStorage.removeItem('accessToken');
-                    localStorage.removeItem('refreshToken');
-                }
                 setUser(null);
                 return;
             }
@@ -58,11 +54,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 listingCredits: response.data.listingCredits ?? 3,
             });
         } catch (error) {
-            // Not authenticated or error - clear tokens
-            if (typeof window !== 'undefined') {
-                localStorage.removeItem('accessToken');
-                localStorage.removeItem('refreshToken');
-            }
             setUser(null);
         } finally {
             setIsLoading(false);
@@ -71,17 +62,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     useEffect(() => {
         fetchUser();
-
-        // Listen for storage changes (only from other tabs)
-        const handleStorageChange = (e: StorageEvent) => {
-            // Only refetch if accessToken specifically changed
-            if (e.key === 'accessToken' || e.key === null) {
-                fetchUser();
-            }
-        };
-
-        window.addEventListener('storage', handleStorageChange);
-        return () => window.removeEventListener('storage', handleStorageChange);
     }, [fetchUser]);
 
     const logout = async () => {

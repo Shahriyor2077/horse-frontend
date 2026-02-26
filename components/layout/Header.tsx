@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useState, useEffect, useRef } from 'react';
-import { Menu, X, ChevronDown, User, Plus, Sun, Moon, LogOut, Heart, FileText, Shield } from 'lucide-react';
+import { Menu, X, ChevronDown, User, Plus, LogOut, Heart, FileText, Shield } from 'lucide-react';
 import { useTheme } from '@/components/providers/ThemeProvider';
 import { useAuth } from '@/components/providers/AuthProvider';
 import { usePathname } from 'next/navigation';
@@ -20,7 +20,7 @@ const navigation = [
 export function Header() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [userMenuOpen, setUserMenuOpen] = useState(false);
-    const { isDark, toggleTheme } = useTheme();
+    useTheme();
     const { user, isAuthenticated, logout } = useAuth();
     const pathname = usePathname();
     const userMenuRef = useRef<HTMLDivElement>(null);
@@ -275,7 +275,7 @@ export function Header() {
                                 </>
                             ) : (
                                 <>
-                                    <Link href="/login" className="btn btn-ghost btn-sm">Kirish</Link>
+                                    <Link href="/login" className="btn btn-outline btn-sm">Kirish</Link>
                                     <Link href="/elon/yaratish" className="btn btn-primary btn-sm">
                                         <Plus className="w-4 h-4" />
                                         E&apos;lon joylash

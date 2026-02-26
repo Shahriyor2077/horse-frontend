@@ -46,12 +46,11 @@ export default function AdminProductsPage() {
     const fetchProducts = async () => {
         setLoading(true);
         try {
-            const token = localStorage.getItem('accessToken');
             const params = new URLSearchParams();
             if (filter !== 'all') params.append('status', filter);
 
             const res = await fetch(`${API_URL}/api/admin/products?${params}&limit=50`, {
-                headers: { Authorization: `Bearer ${token}` },
+                credentials: 'include',
             });
             const data = await res.json();
             setProducts(Array.isArray(data) ? data : (data?.data ?? []));
@@ -65,10 +64,9 @@ export default function AdminProductsPage() {
     const handleApprove = async (id: string) => {
         setProcessingId(id);
         try {
-            const token = localStorage.getItem('accessToken');
             await fetch(`${API_URL}/api/admin/products/${id}/publish`, {
                 method: 'PUT',
-                headers: { Authorization: `Bearer ${token}` },
+                credentials: 'include',
             });
             fetchProducts();
         } finally {
@@ -80,10 +78,9 @@ export default function AdminProductsPage() {
         if (!confirm('Mahsulotni rad etasizmi? Arxivlanadi.')) return;
         setProcessingId(id);
         try {
-            const token = localStorage.getItem('accessToken');
             await fetch(`${API_URL}/api/admin/products/${id}/archive`, {
                 method: 'PUT',
-                headers: { Authorization: `Bearer ${token}` },
+                credentials: 'include',
             });
             fetchProducts();
         } finally {
@@ -95,10 +92,9 @@ export default function AdminProductsPage() {
         if (!confirm('Mahsulotni o\'chirishni xohlaysizmi?')) return;
         setProcessingId(id);
         try {
-            const token = localStorage.getItem('accessToken');
             await fetch(`${API_URL}/api/admin/products/${id}`, {
                 method: 'DELETE',
-                headers: { Authorization: `Bearer ${token}` },
+                credentials: 'include',
             });
             fetchProducts();
         } finally {

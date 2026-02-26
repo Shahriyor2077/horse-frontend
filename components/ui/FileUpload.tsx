@@ -44,10 +44,7 @@ export function FileUpload({
         setIsUploading(true);
 
         try {
-            // Get token from localStorage
-            const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
-
-            if (!token || !isAuthenticated) {
+            if (!isAuthenticated) {
                 throw new Error('Tizimga kiring');
             }
 
@@ -59,9 +56,7 @@ export function FileUpload({
 
                 const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/media/upload`, {
                     method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                    },
+                    credentials: 'include',
                     body: formData,
                 });
 

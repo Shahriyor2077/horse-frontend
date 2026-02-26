@@ -67,11 +67,6 @@ function LoginContent() {
         );
       }
 
-      if (response.data?.tokens) {
-        localStorage.setItem("accessToken", response.data.tokens.accessToken);
-        localStorage.setItem("refreshToken", response.data.tokens.refreshToken);
-      }
-
       const userResponse = await getCurrentUser();
       if (userResponse.success && userResponse.data?.isAdmin) {
         window.location.href = "/admin/dashboard";

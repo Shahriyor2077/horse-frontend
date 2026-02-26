@@ -1,10 +1,22 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { Eye, MapPin, ChevronRight, Trophy, Calendar, FileText, ShoppingBag, Clock } from 'lucide-react';
-import { getFeaturedListings, getAllPublicEvents } from '@/lib/api';
+import { getAllPublicEvents } from '@/lib/api';
 import { formatPrice } from '@/lib/utils';
 import { HeroSection } from '@/components/home/HeroSection';
 import { FeaturedSlider } from '@/components/home/FeaturedSlider';
+
+async function getRecentListings() {
+    try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/listings/featured?sort=newest&limit=10`, {
+            cache: 'no-store',
+        });
+        const data = await res.json();
+        return Array.isArray(data?.data) ? data.data : (Array.isArray(data) ? data : []);
+    } catch {
+        return [];
+    }
+}
 
 async function getRecentBlogPosts() {
     try {
@@ -32,7 +44,7 @@ async function getRecentProducts() {
 
 export default async function HomePage() {
     // Fetch real data from API - more listings for slider
-    const featuredListings = await getFeaturedListings(50).catch(() => []);
+    const featuredListings = await getRecentListings();
     const allEvents = await getAllPublicEvents().catch(() => []);
     const upcomingEvents = allEvents.slice(0, 3);
     const recentPosts = await getRecentBlogPosts();
@@ -45,13 +57,13 @@ export default async function HomePage() {
             {/* Featured Listings - Auto-scrolling slider */}
             {featuredListings.length > 0 && (
                 <section className="py-12 md:py-16 bg-slate-50 dark:bg-slate-900">
-                    <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="container mx-auto px-4 sm:px-6 lg:px-12 xl:px-20">
                         <div className="flex justify-between items-center mb-8">
                             <div>
                                 <h2 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-slate-100">
                                     Premium e'lonlar
                                 </h2>
-                                <p className="text-slate-600 dark:text-slate-400 mt-1">To'langan va ishonchli e'lonlar</p>
+                                {/* <p className="text-slate-600 dark:text-slate-400 mt-1">Eng yaxshilari</p> */}
                             </div>
                             <Link
                                 href="/bozor"
@@ -77,7 +89,7 @@ export default async function HomePage() {
             {/* Recent Products */}
             {recentProducts.length > 0 && (
                 <section className="py-12 md:py-16 bg-white dark:bg-slate-800">
-                    <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="container mx-auto px-4 sm:px-6 lg:px-12 xl:px-20">
                         <div className="flex justify-between items-center mb-8">
                             <div>
                                 <h2 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-slate-100">
@@ -148,7 +160,7 @@ export default async function HomePage() {
 
             {/* Upcoming Ko'pkari Events */}
             <section className="py-12 md:py-16 bg-slate-50 dark:bg-slate-900">
-                <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="container mx-auto px-4 sm:px-6 lg:px-12 xl:px-20">
                     <div className="flex justify-between items-center mb-8">
                         <div>
                             <h2 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-slate-100">
@@ -229,7 +241,7 @@ export default async function HomePage() {
 
             {/* Blog Section */}
             <section className="py-12 md:py-16 bg-white dark:bg-slate-800">
-                <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="container mx-auto px-4 sm:px-6 lg:px-12 xl:px-20">
                     <div className="flex justify-between items-center mb-8">
                         <div>
                             <h2 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-slate-100">Blog</h2>

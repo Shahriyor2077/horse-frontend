@@ -52,9 +52,8 @@ export default function AdminProductDetailPage() {
     const loadProduct = async () => {
         try {
             setLoading(true);
-            const token = localStorage.getItem('accessToken');
             const res = await fetch(`${API_URL}/api/admin/products/${id}`, {
-                headers: { Authorization: `Bearer ${token}` },
+                credentials: 'include',
             });
             if (!res.ok) throw new Error('Mahsulot topilmadi');
             const data = await res.json();
@@ -69,10 +68,9 @@ export default function AdminProductDetailPage() {
     const handleApprove = async () => {
         setActionLoading('approve');
         try {
-            const token = localStorage.getItem('accessToken');
             await fetch(`${API_URL}/api/admin/products/${id}/publish`, {
                 method: 'PUT',
-                headers: { Authorization: `Bearer ${token}` },
+                credentials: 'include',
             });
             router.push('/admin/mahsulotlar');
         } catch {
@@ -84,10 +82,9 @@ export default function AdminProductDetailPage() {
         if (!confirm('Mahsulotni arxivlaysizmi?')) return;
         setActionLoading('archive');
         try {
-            const token = localStorage.getItem('accessToken');
             await fetch(`${API_URL}/api/admin/products/${id}/archive`, {
                 method: 'PUT',
-                headers: { Authorization: `Bearer ${token}` },
+                credentials: 'include',
             });
             router.push('/admin/mahsulotlar');
         } catch {

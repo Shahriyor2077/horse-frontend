@@ -9,7 +9,7 @@ export function HeroSection() {
             <div className="absolute right-0 top-0 w-[500px] h-[500px] bg-primary-400/10 rounded-full blur-3xl pointer-events-none" />
             <div className="absolute right-1/3 bottom-0 w-72 h-72 bg-yellow-300/10 rounded-full blur-3xl pointer-events-none" />
 
-            <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 py-16">
+            <div className="container mx-auto px-4 sm:px-6 lg:px-12 xl:px-20 relative z-10 py-16">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
 
                     {/* Left */}

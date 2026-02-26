@@ -22,11 +22,9 @@ export function ProductFavoriteButton({ productId, favoriteCount = 0, variant = 
 
     useEffect(() => {
         if (!isAuthenticated) return;
-        const token = localStorage.getItem('accessToken');
-        if (!token) return;
 
         fetch(`${API_URL}/api/products/${productId}/favorite`, {
-            headers: { Authorization: `Bearer ${token}` },
+            credentials: 'include',
         })
             .then(r => r.json())
             .then(data => setFavorited(!!data.favorited))
@@ -42,8 +40,7 @@ export function ProductFavoriteButton({ productId, favoriteCount = 0, variant = 
             return;
         }
 
-        const token = localStorage.getItem('accessToken');
-        if (!token || loading) return;
+        if (loading) return;
 
         setLoading(true);
         const prev = favorited;
@@ -52,7 +49,7 @@ export function ProductFavoriteButton({ productId, favoriteCount = 0, variant = 
         try {
             const res = await fetch(`${API_URL}/api/products/${productId}/favorite`, {
                 method: 'POST',
-                headers: { Authorization: `Bearer ${token}` },
+                credentials: 'include',
             });
             if (!res.ok) {
                 setFavorited(prev);

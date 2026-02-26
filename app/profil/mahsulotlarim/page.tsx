@@ -59,9 +59,8 @@ function MahsulotlarimContent() {
     const fetchProducts = async () => {
         setLoading(true);
         try {
-            const token = localStorage.getItem('accessToken');
             const res = await fetch(`${API_URL}/api/my/products`, {
-                headers: { Authorization: `Bearer ${token}` },
+                credentials: 'include',
             });
             const data = await res.json();
             setProducts(Array.isArray(data?.data) ? data.data : []);
@@ -76,10 +75,9 @@ function MahsulotlarimContent() {
         if (!confirm("Mahsulotni o'chirishni xohlaysizmi?")) return;
         setDeletingId(id);
         try {
-            const token = localStorage.getItem('accessToken');
             await fetch(`${API_URL}/api/my/products/${id}`, {
                 method: 'DELETE',
-                headers: { Authorization: `Bearer ${token}` },
+                credentials: 'include',
             });
             setProducts(prev => prev.filter(p => p.id !== id));
         } finally {

@@ -23,12 +23,12 @@ function ProfilPageContent() {
         if (!nameValue.trim()) return;
         setSavingName(true);
         try {
-            const token = localStorage.getItem('accessToken');
             const res = await fetch(
                 `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/users/me`,
                 {
                     method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ displayName: nameValue.trim() }),
                 }
             );

@@ -185,14 +185,11 @@ function MyListingsPageContent() {
     }, [openMenuId]);
 
     const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-    const getToken = () => typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
-    const authHeaders = () => ({ ...(getToken() ? { Authorization: `Bearer ${getToken()}` } : {}) });
 
     const fetchListings = async () => {
         try {
             const res = await fetch(`${apiBase}/api/my/listings`, {
                 credentials: 'include',
-                headers: authHeaders(),
             });
             const data = await res.json();
             setListings(Array.isArray(data) ? data : (data?.data ?? []));
@@ -207,7 +204,6 @@ function MyListingsPageContent() {
         try {
             const res = await fetch(`${apiBase}/api/my/products`, {
                 credentials: 'include',
-                headers: authHeaders(),
             });
             const data = await res.json();
             setProducts(Array.isArray(data) ? data : (data?.data ?? []));
@@ -241,7 +237,7 @@ function MyListingsPageContent() {
             const res = await fetch(`${apiBase}/api/payments/create-reactivation-invoice`, {
                 method: 'POST',
                 credentials: 'include',
-                headers: { 'Content-Type': 'application/json', ...authHeaders() },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ listingId }),
             });
             const data = await res.json();
@@ -261,7 +257,6 @@ function MyListingsPageContent() {
             const res = await fetch(`${apiBase}/api/my/listings/${listingId}/submit`, {
                 method: 'POST',
                 credentials: 'include',
-                headers: authHeaders(),
             });
             if (res.status === 402) {
                 const body = await res.json();
@@ -279,7 +274,6 @@ function MyListingsPageContent() {
             await fetch(`${apiBase}/api/my/listings/${listingId}`, {
                 method: 'DELETE',
                 credentials: 'include',
-                headers: authHeaders(),
             });
             setDeactivateListingId(null);
             await fetchListings();
@@ -294,7 +288,6 @@ function MyListingsPageContent() {
             await fetch(`${apiBase}/api/my/listings/${listingId}/permanent`, {
                 method: 'DELETE',
                 credentials: 'include',
-                headers: authHeaders(),
             });
             await fetchListings();
         } catch (e) {
@@ -331,7 +324,6 @@ function MyListingsPageContent() {
             await fetch(`${apiBase}/api/my/products/${productId}`, {
                 method: 'DELETE',
                 credentials: 'include',
-                headers: authHeaders(),
             });
             setProducts(prev => prev.filter(p => p.id !== productId));
         } catch (e) {

@@ -16,12 +16,10 @@ function NashrNatijaContent() {
     useEffect(() => {
         if (!paymentId) { setStatus('failed'); return; }
 
-        const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
         const check = async () => {
             try {
                 const res = await fetch(`${API_URL}/api/payments/status/${paymentId}`, {
                     credentials: 'include',
-                    headers: token ? { Authorization: `Bearer ${token}` } : {},
                 });
                 const data = await res.json();
                 if (data.success && data.data?.status === 'COMPLETED') setStatus('success');

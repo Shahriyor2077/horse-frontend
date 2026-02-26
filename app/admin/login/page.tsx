@@ -38,14 +38,6 @@ export default function AdminLoginPage() {
                 throw new Error(msg || 'Login muvaffaqiyatsiz');
             }
 
-            // Save tokens to localStorage
-            if (response.data?.tokens) {
-                console.log('💾 Saving admin tokens to localStorage...');
-                localStorage.setItem('accessToken', response.data.tokens.accessToken);
-                localStorage.setItem('refreshToken', response.data.tokens.refreshToken);
-                console.log('✅ Admin tokens saved');
-            }
-
             console.log('🔄 Redirecting to admin dashboard...');
             // Muvaffaqiyatli login - force reload to refresh AuthProvider
             window.location.href = '/admin/dashboard';

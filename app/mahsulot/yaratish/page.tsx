@@ -85,13 +85,12 @@ function CreateProductForm() {
 
         setLoading(true);
         try {
-            const token = localStorage.getItem('accessToken');
             const res = await fetch(`${API_URL}/api/products`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`,
                 },
+                credentials: 'include',
                 body: JSON.stringify({
                     title: form.title,
                     categoryId: form.categoryId || undefined,
@@ -117,8 +116,8 @@ function CreateProductForm() {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        Authorization: `Bearer ${token}`,
                     },
+                    credentials: 'include',
                     body: JSON.stringify({ productId, media }),
                 });
             }

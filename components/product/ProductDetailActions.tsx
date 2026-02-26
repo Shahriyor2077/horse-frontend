@@ -40,10 +40,9 @@ export function ProductDetailActions({ title, productId, ownerId, slug }: Props)
         if (!confirm("Mahsulotni o'chirishni xohlaysizmi?")) return;
         setDeleting(true);
         try {
-            const token = localStorage.getItem('accessToken');
             const res = await fetch(`${API_URL}/api/my/products/${productId}`, {
                 method: 'DELETE',
-                headers: { Authorization: `Bearer ${token}` },
+                credentials: 'include',
             });
             if (res.ok) {
                 router.push('/profil/mahsulotlarim');

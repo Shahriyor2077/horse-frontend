@@ -6,8 +6,8 @@ interface FetchOptions extends RequestInit {
 
 // Try to refresh access token using the refresh token cookie
 // Concurrent callers share the same promise to avoid multiple refresh calls
-let refreshPromise: Promise<string | null> | null = null;
-async function tryRefreshToken(): Promise<string | null> {
+let refreshPromise: Promise<boolean> | null = null;
+async function tryRefreshToken(): Promise<boolean> {
     if (refreshPromise) return refreshPromise;
     refreshPromise = (async () => {
         try {
@@ -15,16 +15,9 @@ async function tryRefreshToken(): Promise<string | null> {
                 method: 'POST',
                 credentials: 'include',
             });
-            if (!res.ok) return null;
-            const data = await res.json();
-            // Response shape: { success, data: { tokens: { accessToken, refreshToken } } }
-            const newToken = data?.data?.tokens?.accessToken || data?.data?.accessToken || data?.accessToken;
-            if (newToken && typeof window !== 'undefined') {
-                localStorage.setItem('accessToken', newToken);
-            }
-            return newToken || null;
+            return res.ok;
         } catch {
-            return null;
+            return false;
         } finally {
             refreshPromise = null;
         }
@@ -57,37 +50,30 @@ export async function apiFetch<T>(
 
     const hasRevalidate = (init as any)?.next?.revalidate !== undefined;
 
-    const doFetch = (token: string | null) =>
+    const doFetch = () =>
         fetch(url, {
             ...init,
             ...(hasRevalidate ? {} : { cache: init.cache ?? 'no-store' }),
             credentials: 'include',
             headers: {
                 'Content-Type': 'application/json',
-                ...(token ? { Authorization: `Bearer ${token}` } : {}),
                 ...init.headers,
             },
         });
 
-    const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
-    let response = await doFetch(token);
+    let response = await doFetch();
 
-    // On 401, try to refresh token and retry once
+    // On 401, try to refresh token cookie and retry once
     if (response.status === 401 && !isAuthEndpoint) {
-        const newToken = await tryRefreshToken();
-        if (newToken) {
-            response = await doFetch(newToken);
+        const refreshed = await tryRefreshToken();
+        if (refreshed) {
+            response = await doFetch();
         }
     }
 
     if (!response.ok) {
         if (response.status === 401) {
             const errorBody = await response.json().catch(() => ({}));
-            // Refresh failed too — clear tokens
-            if (!isAuthEndpoint && typeof window !== 'undefined') {
-                localStorage.removeItem('accessToken');
-                localStorage.removeItem('refreshToken');
-            }
             return { success: false, message: errorBody.message || 'Unauthorized' } as T;
         }
 
@@ -353,13 +339,11 @@ export class PaymentRequiredError extends Error {
 
 export async function submitListingForReview(id: string): Promise<Listing> {
     const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-    const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
     const res = await fetch(`${API_BASE}/api/my/listings/${id}/submit`, {
         method: 'POST',
         credentials: 'include',
         headers: {
             'Content-Type': 'application/json',
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
     });
     if (res.status === 402) {
@@ -478,14 +462,6 @@ export async function adminLogin(username: string, password: string): Promise<Au
         body: JSON.stringify({ username, password }),
     });
 
-    // Save tokens to localStorage for production (cookie fallback)
-    if (response.success && response.data?.tokens) {
-        if (typeof window !== 'undefined') {
-            localStorage.setItem('accessToken', response.data.tokens.accessToken);
-            localStorage.setItem('refreshToken', response.data.tokens.refreshToken);
-        }
-    }
-
     return response;
 }
 
@@ -502,14 +478,6 @@ export async function verifyCode(code: string): Promise<AuthResponse<{ tokens: {
         body: JSON.stringify({ code }),
     });
 
-    // Save tokens to localStorage for production (cookie fallback)
-    if (response.success && response.data?.tokens) {
-        if (typeof window !== 'undefined') {
-            localStorage.setItem('accessToken', response.data.tokens.accessToken);
-            localStorage.setItem('refreshToken', response.data.tokens.refreshToken);
-        }
-    }
-
     return response;
 }
 
@@ -517,14 +485,6 @@ export async function refreshTokens(): Promise<AuthResponse<{ tokens: { accessTo
     const response = await apiFetch<AuthResponse<{ tokens: { accessToken: string; refreshToken: string; expiresIn: string } }>>('/api/auth/refresh', {
         method: 'POST',
     });
-
-    // Save tokens to localStorage for production (cookie fallback)
-    if (response.success && response.data?.tokens) {
-        if (typeof window !== 'undefined') {
-            localStorage.setItem('accessToken', response.data.tokens.accessToken);
-            localStorage.setItem('refreshToken', response.data.tokens.refreshToken);
-        }
-    }
 
     return response;
 }
@@ -534,11 +494,6 @@ export async function getCurrentUser(): Promise<AuthResponse<UserMeResponse>> {
 }
 
 export async function logout(): Promise<AuthResponse<null>> {
-    // Clear localStorage tokens
-    if (typeof window !== 'undefined') {
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
-    }
     return apiFetch('/api/auth/logout', { method: 'POST' });
 }
 

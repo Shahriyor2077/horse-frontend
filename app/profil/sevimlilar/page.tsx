@@ -43,14 +43,10 @@ function FavoritesPageContent() {
 
     const fetchFavorites = async () => {
         try {
-            const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
             const res = await fetch(
                 `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/my/listings/favorites`,
                 {
                     credentials: 'include',
-                    headers: {
-                        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-                    },
                 }
             );
             const data = await res.json();
@@ -65,15 +61,11 @@ function FavoritesPageContent() {
 
     const handleRemoveFavorite = async (listingId: string) => {
         try {
-            const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
             await fetch(
                 `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/listings/${listingId}/favorite`,
                 {
                     method: 'DELETE',
                     credentials: 'include',
-                    headers: {
-                        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-                    },
                 }
             );
             const updated = favorites.filter(f => f.id !== listingId);
