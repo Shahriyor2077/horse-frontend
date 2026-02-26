@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useState, useEffect, useRef } from 'react';
 import { Menu, X, ChevronDown, User, Plus, Sun, Moon, LogOut, Heart, FileText, Shield } from 'lucide-react';
 import { useTheme } from '@/components/providers/ThemeProvider';
@@ -71,7 +72,7 @@ export function Header() {
                 {isAuthenticated && user && (
                     <div className="flex items-center gap-3 p-4 mb-4 bg-slate-50 dark:bg-slate-800 rounded-xl">
                         {user.avatarUrl ? (
-                            <img src={user.avatarUrl} alt={user.displayName} className="w-10 h-10 rounded-full object-cover" />
+                            <Image src={user.avatarUrl} alt={user.displayName} width={40} height={40} className="rounded-full object-cover" />
                         ) : (
                             <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900 rounded-full flex items-center justify-center text-primary-600 dark:text-primary-400 font-semibold">
                                 {user.displayName?.charAt(0).toUpperCase()}
@@ -179,7 +180,7 @@ export function Header() {
                     <div className="flex h-16 items-center justify-between">
                         {/* Logo */}
                         <Link href="/" className="flex items-center gap-2 flex-shrink-0">
-                            <img src="/logo.png" alt="Otbozor" className="w-10 h-10 sm:w-12 sm:h-12 object-contain" />
+                            <Image src="/logo.png" alt="Otbozor" width={48} height={48} className="w-10 h-10 sm:w-12 sm:h-12 object-contain" />
                             <span className="text-lg sm:text-xl font-bold text-slate-900 dark:text-slate-100">
                                 Ot<span className="text-primary-600 dark:text-primary-400">bozor</span>
                             </span>
@@ -227,7 +228,7 @@ export function Header() {
                                             className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                                         >
                                             {user?.avatarUrl ? (
-                                                <img src={user.avatarUrl} alt={user.displayName} className="w-8 h-8 rounded-full object-cover" />
+                                                <Image src={user.avatarUrl} alt={user.displayName} width={32} height={32} className="rounded-full object-cover" />
                                             ) : (
                                                 <div className="w-8 h-8 bg-primary-100 dark:bg-primary-900 rounded-full flex items-center justify-center text-primary-600 dark:text-primary-400 text-sm font-semibold">
                                                     {user?.displayName?.charAt(0).toUpperCase()}

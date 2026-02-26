@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { ChevronLeft, ChevronRight, Play } from 'lucide-react';
 
 interface ListingGalleryProps {
@@ -45,10 +46,12 @@ export function ListingGallery({ media, title }: ListingGalleryProps) {
                         <source src={activeMedia.url} type="video/mp4" />
                     </video>
                 ) : (
-                    <img
+                    <Image
                         src={activeMedia.url}
                         alt={`${title} - ${activeIndex + 1}`}
-                        className="w-full h-full object-contain"
+                        fill
+                        sizes="(max-width: 1024px) 100vw, 66vw"
+                        className="object-contain"
                     />
                 )}
 
@@ -80,10 +83,12 @@ export function ListingGallery({ media, title }: ListingGalleryProps) {
                             className={`relative flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${index === activeIndex ? 'border-primary-500 ring-2 ring-primary-500/30' : 'border-transparent opacity-70 hover:opacity-100'
                                 }`}
                         >
-                            <img
+                            <Image
                                 src={item.thumbUrl || item.url}
                                 alt={`Thumbnail ${index + 1}`}
-                                className="w-full h-full object-cover"
+                                fill
+                                sizes="80px"
+                                className="object-cover"
                             />
                             {item.type === 'VIDEO' && (
                                 <div className="absolute inset-0 flex items-center justify-center bg-black/40">

@@ -247,7 +247,7 @@ export default function AdminUsersPage() {
 
                 {/* Pagination */}
                 {!loading && totalPages > 1 && (
-                    <div className="px-6 py-4 border-t border-slate-100 flex items-center justify-between bg-slate-50/50">
+                    <div className="px-6 py-4 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50">
                         <button
                             onClick={() => setPage(p => Math.max(1, p - 1))}
                             disabled={page === 1}
@@ -255,7 +255,7 @@ export default function AdminUsersPage() {
                         >
                             Oldingi
                         </button>
-                        <span className="text-xs font-medium text-slate-500">
+                        <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
                             Sahifa {page} / {totalPages}
                         </span>
                         <button

@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Check, X, Trash2, Eye, Package, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { AdminLayout } from '@/components/layout/AdminLayout';
 
 interface Product {
@@ -190,12 +191,14 @@ export default function AdminProductsPage() {
                                     <tr key={product.id} className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
                                         <td className="px-4 py-3">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 bg-slate-100 dark:bg-slate-700 rounded-lg overflow-hidden flex-shrink-0 flex items-center justify-center">
+                                                <div className="relative w-10 h-10 bg-slate-100 dark:bg-slate-700 rounded-lg overflow-hidden flex-shrink-0 flex items-center justify-center">
                                                     {product.media[0] ? (
-                                                        <img
+                                                        <Image
                                                             src={product.media[0].thumbUrl || product.media[0].url}
                                                             alt={product.title}
-                                                            className="w-full h-full object-cover"
+                                                            fill
+                                                            sizes="40px"
+                                                            className="object-cover"
                                                         />
                                                     ) : (
                                                         <Package className="w-5 h-5 text-slate-400" />

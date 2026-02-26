@@ -6,6 +6,7 @@ import { ListingInteractions } from '@/components/listing/ListingInteractions';
 import { ListingDetailActions } from '@/components/listing/ListingDetailActions';
 import { FavoriteButton } from '@/components/listing/FavoriteButton';
 import { ViewTracker } from '@/components/listing/ViewTracker';
+import Image from 'next/image';
 import { MapPin, Shield, Calendar, Eye } from 'lucide-react';
 import { notFound } from 'next/navigation';
 
@@ -156,9 +157,9 @@ export default async function ListingDetailPage({ params }: { params: { slug: st
                         {/* Seller Info */}
                         <div className="bg-slate-50 dark:bg-slate-700/50 rounded-xl p-4 border border-slate-100 dark:border-slate-600 mb-6">
                             <div className="flex items-center gap-3">
-                                <div className="w-11 h-11 bg-slate-200 dark:bg-slate-600 rounded-full flex items-center justify-center text-lg overflow-hidden text-slate-600 dark:text-slate-300 flex-shrink-0">
+                                <div className="relative w-11 h-11 bg-slate-200 dark:bg-slate-600 rounded-full flex items-center justify-center text-lg overflow-hidden text-slate-600 dark:text-slate-300 flex-shrink-0">
                                     {listing.user.avatarUrl ? (
-                                        <img src={listing.user.avatarUrl} alt={listing.user.displayName} className="w-full h-full object-cover" />
+                                        <Image src={listing.user.avatarUrl} alt={listing.user.displayName} fill sizes="44px" className="object-cover" />
                                     ) : (
                                         listing.user.displayName?.[0]?.toUpperCase() || 'U'
                                     )}

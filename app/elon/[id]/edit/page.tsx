@@ -10,7 +10,7 @@ import { FileUpload } from '@/components/ui/FileUpload';
 import {
     getRegionsWithDistricts, getBreeds, updateListingDraft,
     attachMediaToListing, submitListingForReview,
-    getMyListingById, Region, Breed, District
+    getMyListingById, PaymentRequiredError, Region, Breed, District
 } from '@/lib/api';
 import { RequireAuth } from '@/components/auth/RequireAuth';
 import Link from 'next/link';
@@ -196,6 +196,10 @@ function EditListingPageContent() {
             router.push('/profil/elonlarim?success=true');
         } catch (error: any) {
             console.error('Failed to submit', error);
+            if (error instanceof PaymentRequiredError) {
+                router.push(`/elon/${error.listingId}/nashr-tolov`);
+                return;
+            }
             if (error.message?.includes('already submitted')) {
                 router.push('/profil/elonlarim?success=true');
                 return;

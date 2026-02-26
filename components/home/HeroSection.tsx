@@ -1,111 +1,74 @@
-'use client';
-
-import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Search, Plus } from 'lucide-react';
-import dynamic from 'next/dynamic';
-import { initParticlesEngine } from '@tsparticles/react';
-import { loadSlim } from '@tsparticles/slim';
-const Particles = dynamic(() => import('@tsparticles/react').then(m => m.default), { ssr: false });
+import Image from 'next/image';
+import { Search, ArrowRight, CheckCircle2 } from 'lucide-react';
 
 export function HeroSection() {
-    const [ready, setReady] = useState(false);
-
-    useEffect(() => {
-        initParticlesEngine(async (engine) => {
-            await loadSlim(engine);
-        }).then(() => setReady(true));
-    }, []);
-
     return (
-        <section
-            className="hero-no-select relative min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-950 via-gray-900 to-black text-white overflow-hidden"
-            onCopy={(e) => e.preventDefault()}
-        >
-            {ready && (
-                <Particles
-                    id="hero-particles"
-                    className="absolute inset-0"
-                    options={{
-                        fullScreen: { enable: false },
-                        background: { color: { value: 'transparent' } },
-                        fpsLimit: 60,
-                        particles: {
-                            color: { value: '#ffffff' },
-                            links: {
-                                color: '#ffffff',
-                                distance: 150,
-                                enable: true,
-                                opacity: 0.15,
-                                width: 1,
-                            },
-                            move: {
-                                enable: true,
-                                speed: 1,
-                                direction: 'none' as const,
-                                outModes: { default: 'bounce' as const },
-                            },
-                            number: {
-                                density: { enable: true },
-                                value: 80,
-                            },
-                            opacity: {
-                                value: 0.3,
-                            },
-                            shape: {
-                                type: 'circle',
-                            },
-                            size: {
-                                value: { min: 1, max: 3 },
-                            },
-                        },
-                        interactivity: {
-                            events: {
-                                onHover: {
-                                    enable: true,
-                                    mode: 'grab',
-                                },
-                            },
-                            modes: {
-                                grab: {
-                                    distance: 200,
-                                    links: { opacity: 0.4 },
-                                },
-                            },
-                        },
-                        detectRetina: true,
-                    }}
-                />
-            )}
+        <section className="relative min-h-[88vh] flex items-center bg-white dark:bg-slate-950 overflow-hidden">
+            {/* Glow effects */}
+            <div className="absolute right-0 top-0 w-[500px] h-[500px] bg-primary-400/10 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute right-1/3 bottom-0 w-72 h-72 bg-yellow-300/10 rounded-full blur-3xl pointer-events-none" />
 
-            <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-                <div className="max-w-3xl mx-auto text-center">
-                    <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold mb-4 sm:mb-6 leading-tight">
-                        Otingizni tez soting
-                        <br />
-                        yoki <span className="text-amber-300">toping</span>
-                    </h1>
-                    <p className="text-base sm:text-lg md:text-xl text-white/70 mb-8 sm:mb-12 max-w-2xl mx-auto px-4 sm:px-0">
-                        O&apos;zbekistondagi eng katta ot savdo platformasi. Minglab e&apos;lonlar,
-                        verifikatsiyalangan sotuvchilar, xavfsiz savdo.
-                    </p>
+            <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 py-16">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
 
-                    <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-4 sm:px-0">
-                        <Link
-                            href="/elon/yaratish"
-                            className="inline-flex items-center justify-center gap-2.5 px-6 sm:px-8 py-3.5 sm:py-4 bg-white text-primary-700 hover:bg-primary-50 rounded-xl font-semibold text-base sm:text-lg shadow-xl transition-colors"
-                        >
-                            <Plus className="w-5 h-5" />
-                            E&apos;lon joylash
-                        </Link>
-                        <Link
-                            href="/bozor"
-                            className="inline-flex items-center justify-center gap-2.5 px-6 sm:px-8 py-3.5 sm:py-4 border-2 border-white/30 text-white hover:bg-white/10 rounded-xl font-semibold text-base sm:text-lg transition-colors"
-                        >
-                            <Search className="w-5 h-5" />
-                            Ot qidirish
-                        </Link>
+                    {/* Left */}
+                    <div>
+                        <h1 className="text-4xl sm:text-5xl lg:text-[3.5rem] font-bold text-slate-900 dark:text-white leading-tight mb-6">
+                            Orzuingizdagi{' '}
+                            <span className="text-primary-600 dark:text-primary-400">otni toping</span>{' '}
+                            yoki tez soting
+                        </h1>
+
+                        <p className="text-lg text-slate-500 dark:text-slate-400 mb-8 max-w-lg leading-relaxed">
+                            O'zbekistondagi eng ishonchli ot savdo platformasi.
+                            Verifikatsiyalangan sotuvchilar, xavfsiz savdo, premium e'lonlar.
+                        </p>
+
+                        <div className="flex flex-col sm:flex-row gap-3 mb-10">
+                            <Link
+                                href="/bozor"
+                                className="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-semibold text-base transition-colors shadow-lg shadow-primary-500/20"
+                            >
+                                <Search className="w-5 h-5" />
+                                Ot qidirish
+                            </Link>
+                            <Link
+                                href="/elon/yaratish"
+                                className="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 rounded-xl font-semibold text-base transition-colors"
+                            >
+                                E'lon joylash
+                                <ArrowRight className="w-5 h-5" />
+                            </Link>
+                        </div>
+
+                        <div className="flex items-center gap-6 flex-wrap">
+                            <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
+                                <CheckCircle2 className="w-4 h-4 text-primary-600 dark:text-primary-400" />
+                                Tekshirilgan otlar
+                            </div>
+                            <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
+                                <CheckCircle2 className="w-4 h-4 text-primary-600 dark:text-primary-400" />
+                                Xavfsiz to'lov
+                            </div>
+                        </div>
                     </div>
+
+                    {/* Right - Horse image */}
+                    <div className="hidden lg:flex justify-center">
+                        <div className="relative w-full max-w-lg">
+                            <div className="relative rounded-3xl overflow-hidden aspect-[4/3] shadow-2xl">
+                                <Image
+                                    src="/horse.jpg"
+                                    alt="Ot"
+                                    fill
+                                    className="object-cover"
+                                    priority
+                                />
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </section>

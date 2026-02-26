@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Calendar, Eye, ArrowLeft, Tag } from 'lucide-react';
 
 async function getBlogPost(slug: string) {
@@ -90,11 +91,13 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
                         <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
                             {/* Cover Image */}
                             {post.coverImage && (
-                                <div className="aspect-video bg-slate-100 dark:bg-slate-700">
-                                    <img
+                                <div className="relative aspect-video bg-slate-100 dark:bg-slate-700">
+                                    <Image
                                         src={post.coverImage}
                                         alt={post.title}
-                                        className="w-full h-full object-cover"
+                                        fill
+                                        sizes="(max-width: 1024px) 100vw, 66vw"
+                                        className="object-cover"
                                     />
                                 </div>
                             )}

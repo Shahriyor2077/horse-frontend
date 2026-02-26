@@ -1,5 +1,6 @@
 import { Suspense } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Calendar, Eye, FileText } from 'lucide-react';
 import { Pagination } from '@/components/listing/Pagination';
 
@@ -61,10 +62,12 @@ export default async function BlogPage({
                             {/* Cover Image */}
                             <div className="relative aspect-video bg-gradient-to-br from-primary-100 to-primary-200 overflow-hidden">
                                 {post.coverImage ? (
-                                    <img
+                                    <Image
                                         src={post.coverImage}
                                         alt={post.title}
-                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                        fill
+                                        sizes="(max-width: 768px) 100vw, 33vw"
+                                        className="object-cover group-hover:scale-105 transition-transform duration-500"
                                     />
                                 ) : (
                                     <div className="w-full h-full flex items-center justify-center">

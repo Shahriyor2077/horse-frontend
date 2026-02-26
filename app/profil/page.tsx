@@ -2,6 +2,7 @@
 
 import { useAuth } from '@/components/providers/AuthProvider';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { LogOut, FileText, Heart, Plus, Shield, MessageCircle, ChevronRight, Trash2, AlertTriangle, Send, Pencil, Check, X as XIcon } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
@@ -76,10 +77,12 @@ function ProfilPageContent() {
                     <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 p-5 sm:p-8 mb-6">
                         <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
                             {user.avatarUrl ? (
-                                <img
+                                <Image
                                     src={user.avatarUrl}
                                     alt={user.displayName}
-                                    className="w-20 h-20 sm:w-24 sm:h-24 rounded-full flex-shrink-0"
+                                    width={96}
+                                    height={96}
+                                    className="w-20 h-20 sm:w-24 sm:h-24 rounded-full flex-shrink-0 object-cover"
                                 />
                             ) : (
                                 <div className="w-20 h-20 sm:w-24 sm:h-24 bg-primary-100 dark:bg-primary-900 rounded-full flex items-center justify-center flex-shrink-0">

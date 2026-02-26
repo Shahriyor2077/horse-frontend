@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { AdminLayout } from '@/components/layout/AdminLayout';
 import { Check, X, Loader2, ArrowLeft, MapPin, Eye, Package, Calendar, Truck } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export const dynamic = 'force-dynamic';
 
@@ -179,11 +180,12 @@ export default function AdminProductDetailPage() {
                     <div className="bg-white rounded-xl border border-slate-200 p-4">
                         {product.media && product.media.length > 0 ? (
                             <>
-                                <div className="aspect-video bg-slate-100 rounded-lg overflow-hidden mb-3">
-                                    <img
+                                <div className="relative aspect-video bg-slate-100 rounded-lg overflow-hidden mb-3">
+                                    <Image
                                         src={product.media[selectedImg]?.url}
                                         alt={product.title}
-                                        className="w-full h-full object-cover"
+                                        fill
+                                        className="object-cover"
                                     />
                                 </div>
                                 {product.media.length > 1 && (
@@ -192,11 +194,11 @@ export default function AdminProductDetailPage() {
                                             <button
                                                 key={i}
                                                 onClick={() => setSelectedImg(i)}
-                                                className={`w-16 h-16 rounded-lg overflow-hidden border-2 transition-colors ${
+                                                className={`relative w-16 h-16 rounded-lg overflow-hidden border-2 transition-colors ${
                                                     i === selectedImg ? 'border-primary-500' : 'border-transparent'
                                                 }`}
                                             >
-                                                <img src={m.thumbUrl || m.url} alt="" className="w-full h-full object-cover" />
+                                                <Image src={m.thumbUrl || m.url} alt="" fill sizes="64px" className="object-cover" />
                                             </button>
                                         ))}
                                     </div>

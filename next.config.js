@@ -4,7 +4,6 @@ const nextConfig = {
     compress: true,
     images: {
         formats: ['image/avif', 'image/webp'],
-        domains: ['localhost', 'otbozor.uz'],
         remotePatterns: [
             {
                 protocol: 'http',
@@ -15,6 +14,26 @@ const nextConfig = {
             {
                 protocol: 'https',
                 hostname: 'otbozor.uz',
+                pathname: '/**',
+            },
+            {
+                protocol: 'https',
+                hostname: 'res.cloudinary.com',
+                pathname: '/**',
+            },
+            {
+                protocol: 'https',
+                hostname: 'api.otbozor.uz',
+                pathname: '/**',
+            },
+            {
+                protocol: 'https',
+                hostname: 'images.unsplash.com',
+                pathname: '/**',
+            },
+            {
+                protocol: 'https',
+                hostname: 'picsum.photos',
                 pathname: '/**',
             },
         ],

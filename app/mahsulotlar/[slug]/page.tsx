@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { Shield, Eye, Truck, ShoppingCart, MapPin, Calendar, Clock } from 'lucide-react';
 import { formatRelativeTime } from '@/lib/utils';
@@ -168,12 +169,14 @@ export default async function ProductDetailPage({ params }: { params: { slug: st
                             {/* Seller info */}
                             <div className="bg-slate-50 dark:bg-slate-700/50 rounded-xl p-4 border border-slate-100 dark:border-slate-600 mb-6">
                                 <div className="flex items-center gap-3">
-                                    <div className="w-11 h-11 bg-slate-200 dark:bg-slate-600 rounded-full flex items-center justify-center text-lg overflow-hidden text-slate-600 dark:text-slate-300 flex-shrink-0">
+                                    <div className="relative w-11 h-11 bg-slate-200 dark:bg-slate-600 rounded-full flex items-center justify-center text-lg overflow-hidden text-slate-600 dark:text-slate-300 flex-shrink-0">
                                         {product.user.avatarUrl ? (
-                                            <img
+                                            <Image
                                                 src={product.user.avatarUrl}
                                                 alt={product.user.displayName}
-                                                className="w-full h-full object-cover"
+                                                fill
+                                                sizes="44px"
+                                                className="object-cover"
                                             />
                                         ) : (
                                             product.user.displayName?.[0]?.toUpperCase() || 'S'
@@ -217,10 +220,12 @@ export default async function ProductDetailPage({ params }: { params: { slug: st
                             >
                                 <div className="aspect-square bg-slate-100 dark:bg-slate-700 relative overflow-hidden">
                                     {item.media?.[0] ? (
-                                        <img
+                                        <Image
                                             src={item.media[0].thumbUrl || item.media[0].url}
                                             alt={item.title}
-                                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                            fill
+                                            sizes="(max-width: 640px) 50vw, 25vw"
+                                            className="object-cover group-hover:scale-105 transition-transform duration-500"
                                         />
                                     ) : (
                                         <div className="w-full h-full flex items-center justify-center text-slate-400 dark:text-slate-500">

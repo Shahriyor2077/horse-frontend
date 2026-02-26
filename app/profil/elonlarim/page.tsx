@@ -2,7 +2,9 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '@/components/providers/AuthProvider';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { HorseHeadIcon } from '@/components/icons/HorseIcons';
 import {
     Plus, Edit, Eye, ChevronLeft, ChevronRight, Package,
@@ -122,6 +124,7 @@ function formatDate(dateStr: string) {
 
 function MyListingsPageContent() {
     const { user } = useAuth();
+    const router = useRouter();
     const [mainTab, setMainTab] = useState<MainTab>('horses');
     const [statusFilter, setStatusFilter] = useState<StatusFilter>('active');
     const [productFilter, setProductFilter] = useState<ProductFilter>('PUBLISHED');
@@ -260,6 +263,11 @@ function MyListingsPageContent() {
                 credentials: 'include',
                 headers: authHeaders(),
             });
+            if (res.status === 402) {
+                const body = await res.json();
+                router.push(`/elon/${body.listingId || listingId}/nashr-tolov`);
+                return;
+            }
             if (res.ok) await fetchListings();
         } catch (e) {
             console.error('Failed to resubmit:', e);
@@ -445,7 +453,7 @@ function MyListingsPageContent() {
                         onClick={() => setMainTab('horses')}
                         className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${mainTab === 'horses' ? 'bg-primary-600 text-white' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700'}`}
                     >
-                        <img src="/logo.png" alt="" className="w-5 h-5 object-contain" />
+                        <Image src="/logo.png" width={20} height={20} alt="" className="object-contain" />
                         Ot e&apos;lonlari
                         <span className={`px-1.5 py-0.5 rounded-full text-xs ${mainTab === 'horses' ? 'bg-white/20 text-white' : 'bg-slate-200 dark:bg-slate-600 text-slate-600 dark:text-slate-300'}`}>{listings.length}</span>
                     </button>
@@ -528,10 +536,12 @@ function MyListingsPageContent() {
                                         {/* Image */}
                                         <div className="relative aspect-[4/3] bg-slate-100 dark:bg-slate-700 flex-shrink-0">
                                             {listing.media[0] ? (
-                                                <img
+                                                <Image
                                                     src={listing.media[0].thumbUrl || listing.media[0].url}
                                                     alt={listing.title}
-                                                    className="w-full h-full object-cover"
+                                                    fill
+                                                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                                                    className="object-cover"
                                                 />
                                             ) : (
                                                 <div className="w-full h-full flex items-center justify-center text-slate-300 dark:text-slate-600">
@@ -855,7 +865,7 @@ function MyListingsPageContent() {
                                     <div key={product.id} className="bg-white dark:bg-slate-800 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 hover:shadow-md transition-shadow flex flex-col">
                                         <div className="relative aspect-[4/3] bg-slate-100 dark:bg-slate-700">
                                             {product.media[0] ? (
-                                                <img src={product.media[0].thumbUrl || product.media[0].url} alt={product.title} className="w-full h-full object-cover" />
+                                                <Image src={product.media[0].thumbUrl || product.media[0].url} alt={product.title} fill sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw" className="object-cover" />
                                             ) : (
                                                 <div className="w-full h-full flex items-center justify-center text-slate-300 dark:text-slate-600">
                                                     <Package className="w-14 h-14" />
@@ -939,14 +949,14 @@ function MyListingsPageContent() {
                                 ))}
                             </div>
                             {totalPages > 1 && (
-                                <div className="mt-8 flex items-center justify-center gap-2">
-                                    <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1} className="w-10 h-10 rounded-lg flex items-center justify-center bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 disabled:opacity-40">
+                                <div className="mt-8 flex items-center justify-center gap-2 flex-wrap">
+                                    <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1} className="w-10 h-10 rounded-lg flex items-center justify-center bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
                                         <ChevronLeft className="w-5 h-5" />
                                     </button>
                                     {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
-                                        <button key={p} onClick={() => setCurrentPage(p)} className={`w-10 h-10 rounded-lg flex items-center justify-center font-medium ${p === currentPage ? 'bg-primary-600 text-white' : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600'}`}>{p}</button>
+                                        <button key={p} onClick={() => setCurrentPage(p)} className={`w-10 h-10 rounded-lg flex items-center justify-center font-medium transition-colors ${p === currentPage ? 'bg-primary-600 text-white' : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'}`}>{p}</button>
                                     ))}
-                                    <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages} className="w-10 h-10 rounded-lg flex items-center justify-center bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 disabled:opacity-40">
+                                    <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages} className="w-10 h-10 rounded-lg flex items-center justify-center bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
                                         <ChevronRight className="w-5 h-5" />
                                     </button>
                                 </div>

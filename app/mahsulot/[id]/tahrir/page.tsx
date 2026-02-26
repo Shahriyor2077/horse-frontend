@@ -166,7 +166,11 @@ function EditProductForm() {
             }
 
             const slug = data.slug || productSlug;
-            router.push(`/mahsulotlar/${slug}`);
+            if (data.status === 'PUBLISHED') {
+                router.push(`/mahsulotlar/${slug}`);
+            } else {
+                router.push('/profil/mahsulotlarim');
+            }
         } catch (err: any) {
             setError(err.message || 'Xatolik yuz berdi');
         } finally {

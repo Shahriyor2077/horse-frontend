@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { ShoppingCart, Loader2, Search, X, Plus, ChevronDown, SlidersHorizontal, MapPin, Clock } from 'lucide-react';
 import { ProductFavoriteButton } from '@/components/product/ProductFavoriteButton';
 import { formatRelativeTime } from '@/lib/utils';
@@ -480,10 +481,12 @@ export default function ProductsPage() {
                                     >
                                         <div className="aspect-square bg-slate-100 dark:bg-slate-700 relative overflow-hidden">
                                             {product.media[0] ? (
-                                                <img
+                                                <Image
                                                     src={product.media[0].thumbUrl || product.media[0].url}
                                                     alt={product.title}
-                                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                                    fill
+                                                    sizes="(max-width: 640px) 50vw, 33vw"
+                                                    className="object-cover group-hover:scale-105 transition-transform duration-500"
                                                 />
                                             ) : (
                                                 <div className="w-full h-full flex items-center justify-center text-slate-400 dark:text-slate-500">

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Package, Trash2, Eye, Loader2, ArrowLeft, Plus, ShoppingCart, Pencil, ChevronLeft, ChevronRight } from 'lucide-react';
 
@@ -193,12 +194,14 @@ function MahsulotlarimContent() {
                                 >
                                     <div className="flex items-center gap-4 p-4">
                                         {/* Image */}
-                                        <div className="w-16 h-16 bg-slate-100 dark:bg-slate-700 rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center">
+                                        <div className="relative w-16 h-16 bg-slate-100 dark:bg-slate-700 rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center">
                                             {product.media[0] ? (
-                                                <img
+                                                <Image
                                                     src={product.media[0].thumbUrl || product.media[0].url}
                                                     alt={product.title}
-                                                    className="w-full h-full object-cover"
+                                                    fill
+                                                    sizes="64px"
+                                                    className="object-cover"
                                                 />
                                             ) : (
                                                 <Package className="w-7 h-7 text-slate-400" />

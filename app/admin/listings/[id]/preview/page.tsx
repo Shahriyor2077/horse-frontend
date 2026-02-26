@@ -7,6 +7,7 @@ import { formatPrice, formatDate, getPurposeLabel, getGenderLabel } from '@/lib/
 import { getAdminListingById, approveListing, rejectListing } from '@/lib/admin-api';
 import { MapPin, Calendar, Check, X, Loader2, ArrowLeft, AlertTriangle } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export const dynamic = 'force-dynamic';
 
@@ -196,11 +197,11 @@ export default function AdminListingPreviewPage() {
                             {listing.media && listing.media.length > 0 ? (
                                 <div className="grid grid-cols-3 gap-2">
                                     {listing.media.slice(0, 6).map((media: any, idx: number) => (
-                                        <div key={idx} className="aspect-square bg-slate-100 dark:bg-slate-700 rounded-lg overflow-hidden">
+                                        <div key={idx} className="relative aspect-square bg-slate-100 dark:bg-slate-700 rounded-lg overflow-hidden">
                                             {media.type === 'VIDEO' ? (
                                                 <video src={media.url} className="w-full h-full object-cover" />
                                             ) : (
-                                                <img src={media.url} alt={`Media ${idx + 1}`} className="w-full h-full object-cover" />
+                                                <Image src={media.url} alt={`Media ${idx + 1}`} fill sizes="(max-width: 768px) 33vw, 20vw" className="object-cover" />
                                             )}
                                         </div>
                                     ))}
